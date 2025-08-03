@@ -46,6 +46,10 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+
+            // Koin support for Android
+            implementation(libs.koin.android)
+            implementation(libs.koin.androidx.compose)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -57,6 +61,15 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(projects.shared)
+
+            // Koin
+            api(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.composeVM)
+
+            // ViewModel support in common code
+            implementation(libs.androidx.lifecycle.viewmodel)
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

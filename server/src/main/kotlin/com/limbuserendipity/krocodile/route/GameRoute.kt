@@ -76,7 +76,5 @@ private suspend fun handlePlayerMessage(session: DefaultWebSocketServerSession, 
             }
             room.players.remove(event.player)
         }
-
-        else -> {}
     }
 }

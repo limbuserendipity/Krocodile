@@ -13,10 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.limbuserendipity.krocodile.vm.SigInViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SigInScreen(
-    viewModel: SigInViewModel
+    viewModel: SigInViewModel = koinViewModel()
 ){
 
     val counter = viewModel.counter.collectAsState()

@@ -50,6 +50,7 @@ kotlin {
             // Koin support for Android
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
+            implementation(libs.koin.androidx.compose.navigation)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -70,6 +71,9 @@ kotlin {
             // ViewModel support in common code
             implementation(libs.androidx.lifecycle.viewmodel)
 
+            // Navigation
+            implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.0-beta03")
+            implementation(libs.koin.composeVM.navigation)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

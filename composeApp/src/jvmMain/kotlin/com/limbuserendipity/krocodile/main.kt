@@ -3,14 +3,10 @@ package com.limbuserendipity.krocodile
 import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import androidx.navigation.compose.rememberNavController
-import com.limbuserendipity.krocodile.module.navigationModule
+import cafe.adriel.voyager.navigator.Navigator
 import com.limbuserendipity.krocodile.module.viewModelModule
-import com.limbuserendipity.krocodile.navigation.AppNavHost
-import com.limbuserendipity.krocodile.navigation.AppNavigatorImpl
-import org.koin.compose.getKoin
+import com.limbuserendipity.krocodile.screen.SigInScreen
 import org.koin.core.context.startKoin
-import org.koin.dsl.KoinAppDeclaration
 
 fun main() = application {
     initKoin()
@@ -19,13 +15,7 @@ fun main() = application {
         title = "Krocodile",
     ) {
         MaterialTheme {
-            val appNavigator : AppNavigatorImpl = getKoin().get()
-            val navController = rememberNavController()
-            appNavigator.setController(navController)
-            AppNavHost(
-                navController = navController,
-                startScreen = appNavigator.startScreen()
-            )
+            Navigator(SigInScreen())
         }
     }
 }
@@ -33,6 +23,6 @@ fun main() = application {
 fun initKoin() =
     startKoin {
         modules(
-            viewModelModule, navigationModule
+            viewModelModule,
         )
     }

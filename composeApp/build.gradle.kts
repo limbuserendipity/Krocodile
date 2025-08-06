@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    id("androidx.navigation.safeargs") version "2.9.1" apply false
 }
 
 kotlin {
@@ -50,7 +51,6 @@ kotlin {
             // Koin support for Android
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
-            implementation(libs.koin.androidx.compose.navigation)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -72,8 +72,11 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
 
             // Navigation
-            implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.0-beta03")
-            implementation(libs.koin.composeVM.navigation)
+            val voyagerVersion = "1.1.0-beta02"
+
+            // Navigator
+            implementation("cafe.adriel.voyager:voyager-navigator:$voyagerVersion")
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

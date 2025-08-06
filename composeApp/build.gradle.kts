@@ -20,9 +20,9 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     jvm()
-    
+
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         outputModuleName.set("composeApp")
@@ -42,7 +42,7 @@ kotlin {
         }
         binaries.executable()
     }
-    
+
     sourceSets {
         androidMain.dependencies {
             implementation(compose.preview)
@@ -77,6 +77,11 @@ kotlin {
             // Navigator
             implementation("cafe.adriel.voyager:voyager-navigator:$voyagerVersion")
 
+            // Ktor
+            implementation("io.ktor:ktor-client-content-negotiation:2.2.0")
+            implementation("io.ktor:ktor-client-cio:2.2.0")
+            implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.0")
+            implementation("io.ktor:ktor-client-websockets:2.2.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

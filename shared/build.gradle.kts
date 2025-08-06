@@ -40,8 +40,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // put your Multiplatform dependencies here
-//            implementation("io.ktor:ktor-client-content-negotiation:2.2.0")
-//            implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.0")
 
 
         }

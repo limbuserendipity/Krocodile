@@ -10,7 +10,7 @@ val viewModelModule = module {
 
 
     viewModel{
-        SigInViewModel()
+        SigInViewModel(get())
     }
 
     viewModelOf(::LobbyViewModel)

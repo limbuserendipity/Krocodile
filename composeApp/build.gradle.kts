@@ -82,6 +82,9 @@ kotlin {
             implementation("io.ktor:ktor-client-cio:2.2.0")
             implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.0")
             implementation("io.ktor:ktor-client-websockets:2.2.0")
+            // Log
+            implementation("ch.qos.logback:logback-classic:1.4.14")
+            implementation("io.github.aakira:napier:2.7.1")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

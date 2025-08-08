@@ -41,7 +41,7 @@ class SigInScreen() : Screen {
         val viewModel: SigInViewModel = koinViewModel()
         val navigator = LocalNavigator.currentOrThrow
         val counter = viewModel.counter.collectAsState()
-
+        val player = viewModel.playerState.collectAsState()
         var ipAddress by remember {
             mutableStateOf("")
         }
@@ -53,6 +53,10 @@ class SigInScreen() : Screen {
                 .fillMaxSize()
                 .background(color = Color(0xFFf2ffff))
         ) {
+            Text(text = player.value?.name ?: "null")
+            Text(text = player.value?.id ?: "null")
+            Text(text = player.value?.roomId.toString())
+
             SigInForm(
                 value = ipAddress,
                 onValueChange = { ipAddress = it }
@@ -69,7 +73,7 @@ class SigInScreen() : Screen {
                     .background(Color(0xFFfcba03))
                     .padding(2.dp)
                     .clickable {
-                        viewModel.connectToServer()
+                        viewModel.newPlayer()
                     }
             ){
                 Text(

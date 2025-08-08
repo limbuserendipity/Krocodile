@@ -22,6 +22,5 @@ val clientModule = module{
         }
     }
 
-// GameClient (живет пока нужен)
-    single { GameClient(get()) }
+    single { GameClient(get(), get()) }
 }

@@ -9,6 +9,7 @@ import com.limbuserendipity.krocodile.module.clientModule
 import com.limbuserendipity.krocodile.module.serializationModule
 import com.limbuserendipity.krocodile.module.viewModelModule
 import com.limbuserendipity.krocodile.screen.SigInScreen
+import com.limbuserendipity.krocodile.theme.KrocodileTheme
 import org.koin.compose.getKoin
 import org.koin.core.context.startKoin
 
@@ -18,7 +19,7 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         title = "Krocodile",
     ) {
-        MaterialTheme {
+        KrocodileTheme {
             Navigator(SigInScreen())
         }
     }

@@ -138,3 +138,9 @@ compose.desktop {
         }
     }
 }
+
+compose.resources {
+    publicResClass = false
+    packageOfResClass = "com.limbuserendipity.krocodile.composeApp.commonMain.composeResources"
+    generateResClass = auto
+}

@@ -5,11 +5,13 @@ import com.limbuserendipity.krocodile.model.GameMessage
 import com.limbuserendipity.krocodile.model.Player
 import com.limbuserendipity.krocodile.model.PlayerEvent
 import com.limbuserendipity.krocodile.model.Room
+import com.limbuserendipity.krocodile.model.RoomData
 import com.limbuserendipity.krocodile.model.ServerResult
 import com.limbuserendipity.krocodile.model.ServerStatus
 import io.ktor.server.websocket.DefaultWebSocketServerSession
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
+import io.ktor.websocket.send
 import io.netty.util.internal.logging.Log4JLoggerFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -67,16 +69,24 @@ object GameServer {
 
                     Room.Lobby.players.add(player)
 
+                    val gameMessage = GameMessage.ServerMessage(
+                        serverStatus = ServerStatus.Success(
+                            result = ServerResult.PlayerState(player)
+                        )
+                    )
+                    sendMessage(session, gameMessage)
+
                     ServerStatus.Success(
-                        message = GameMessage.PlayerMessage(event),
-                        result = ServerResult.PlayerState(player)
+                        result = currentLobbyState()
                     )
                 }
 
                 is PlayerEvent.NewRoom -> {
                     val room = Room.GameRoom(
                         id = generateUniqueRandom(),
+                        title = event.title,
                         players = mutableSetOf(event.player),
+                        maxPlayers = event.maxPlayers,
                         owner = event.player,
                         artist = event.player
                     )
@@ -84,7 +94,6 @@ object GameServer {
                     Room.Lobby.players.first { it.id == event.player.id }.roomId = room.id
 
                     ServerStatus.Success(
-                        message = GameMessage.PlayerMessage(event),
                         currentLobbyState()
                     )
                 }
@@ -108,7 +117,6 @@ object GameServer {
                     room.players.remove(event.player)
 
                     ServerStatus.Success(
-                        message = GameMessage.PlayerMessage(event),
                         result = currentLobbyState()
                     )
                 }
@@ -121,8 +129,8 @@ object GameServer {
     }
 
 
-    suspend fun sendMessage() {
-
+    suspend fun sendMessage(session: DefaultWebSocketServerSession, message: GameMessage) {
+        session.send(json.encodeToString(message))
     }
 
 
@@ -140,7 +148,13 @@ object GameServer {
 
 fun currentLobbyState(): ServerResult.LobbyState {
     return ServerResult.LobbyState(
-        playerCount = Room.Lobby.players.count(),
-        rooms = Room.Lobby.rooms.keys().toList()
+        rooms = Room.Lobby.rooms.values.map { room ->
+            RoomData(
+                title = room.title,
+                roomId = room.id,
+                playerCount = room.players.count(),
+                maxCount = room.maxPlayers
+            )
+        }
     )
 }

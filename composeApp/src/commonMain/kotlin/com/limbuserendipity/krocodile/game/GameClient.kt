@@ -34,8 +34,11 @@ class GameClient(
     private val _serverMessages = MutableSharedFlow<GameMessage>()
     val serverMessages: SharedFlow<GameMessage> = _serverMessages
 
-    private val _playerState = MutableStateFlow<Player?>(null)
-    val playerState: StateFlow<Player?> = _playerState.asStateFlow()
+    private val _playerState = MutableStateFlow<ServerResult.PlayerState?>(null)
+    val playerState: StateFlow<ServerResult.PlayerState?> = _playerState.asStateFlow()
+
+    private val _lobbyState = MutableStateFlow<ServerResult.LobbyState?>(null)
+    val lobbyState : StateFlow<ServerResult.LobbyState?> = _lobbyState.asStateFlow()
 
     init {
 
@@ -69,41 +72,37 @@ class GameClient(
         }
     }
 
+    suspend fun sendNewPlayerMessage(username: String) {
+        val gameMessage = GameMessage.PlayerMessage(playerEvent = PlayerEvent.NewPlayer(username))
+        sendMessage(gameMessage)
+    }
     suspend fun sendMessage(message: GameMessage) {
         println("sendMessage")
         session?.send(Frame.Text(json.encodeToString(message)))
     }
 
     suspend fun handleServerMessage(message: GameMessage.ServerMessage) {
-
+        println("handleServerMessage")
         when (message.serverStatus) {
             is ServerStatus.Success -> {
-                val gameMessage = (message.serverStatus as ServerStatus.Success).message
                 val result = (message.serverStatus as ServerStatus.Success).result
 
-                when(gameMessage){
-                    is GameMessage.Drawing -> TODO()
-                    is GameMessage.Guess -> TODO()
-                    is GameMessage.PlayerMessage -> {
-                        val event = gameMessage.playerEvent
-                        when(event){
-                            is PlayerEvent.LeaveRoom -> TODO()
-                            is PlayerEvent.NewPlayer -> {
-                                val player = (result as ServerResult.PlayerState).player
-                                _playerState.emit(player)
-                            }
-                            is PlayerEvent.NewRoom -> TODO()
-                        }
+                when(result){
+                    is ServerResult.LobbyState -> {
+                        println("LobbyState")
+                        _lobbyState.emit(result)
                     }
-                    is GameMessage.ServerMessage -> TODO()
+                    is ServerResult.PlayerState -> {
+                        println("PlayerState")
+                        _playerState.emit(result )
+                    }
+                    is ServerResult.RoomState -> TODO()
                 }
 
             }
 
             is ServerStatus.Error -> TODO()
         }
-
-
     }
 
 
@@ -111,4 +110,5 @@ class GameClient(
         session?.close()
         session = null
     }
+
 }

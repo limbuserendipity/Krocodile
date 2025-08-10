@@ -11,8 +11,7 @@ sealed class ServerResult {
     @Serializable
     @SerialName("lobby_state")
     data class LobbyState(
-        val playerCount: Int,
-        val rooms: List<Long>
+        val rooms: List<RoomData>
     ) : ServerResult()
 
     @Serializable
@@ -34,10 +33,18 @@ sealed class ServerResult {
 sealed class ServerStatus {
     @Serializable
     @SerialName("success")
-    data class Success(val message: GameMessage, val result: ServerResult) : ServerStatus()
+    data class Success(val result: ServerResult) : ServerStatus()
 
     @Serializable
     @SerialName("error")
     class Error : ServerStatus()
 
 }
+
+@Serializable
+data class RoomData(
+    val title : String,
+    val roomId : Long,
+    val playerCount: Int,
+    val maxCount : Int,
+)

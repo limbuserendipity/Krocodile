@@ -1,25 +1,13 @@
 package com.limbuserendipity.krocodile.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,8 +19,6 @@ import com.limbuserendipity.krocodile.component.SigInForm
 import com.limbuserendipity.krocodile.util.Space
 import com.limbuserendipity.krocodile.vm.SigInViewModel
 import org.koin.compose.viewmodel.koinViewModel
-import kotlin.toString
-
 
 class SigInScreen() : Screen {
 
@@ -40,9 +26,12 @@ class SigInScreen() : Screen {
     override fun Content() {
         val viewModel: SigInViewModel = koinViewModel()
         val navigator = LocalNavigator.currentOrThrow
-        val counter = viewModel.counter.collectAsState()
-        val player = viewModel.playerState.collectAsState()
+        val signState = viewModel.signState.collectAsState()
+
         var ipAddress by remember {
+            mutableStateOf("")
+        }
+        var username by remember {
             mutableStateOf("")
         }
 
@@ -51,41 +40,49 @@ class SigInScreen() : Screen {
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = Color(0xFFf2ffff))
+                .background(color = MaterialTheme.colorScheme.background)
         ) {
-            Text(text = player.value?.name ?: "null")
-            Text(text = player.value?.id ?: "null")
-            Text(text = player.value?.roomId.toString())
 
             SigInForm(
-                value = ipAddress,
-                onValueChange = { ipAddress = it }
+                ip = ipAddress,
+                onIpChange = { ipAddress = it },
+                username = username,
+                onUsernameChange = { username = it }
             )
 
             8.dp.Space()
 
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .width(180.dp)
-                    .height(80.dp)
-                    .padding(2.dp)
-                    .background(Color(0xFFfcba03))
-                    .padding(2.dp)
-                    .clickable {
-                        viewModel.newPlayer()
+            Button(
+                onClick = {
+                    if (username.isNotEmpty()) {
+                        viewModel.sign(username)
                     }
-            ){
-                Text(
-                    text = "SigIn"
-                )
+                }
+            ) {
+                Text("sig_in")
+            }
+
+        }
+
+        LaunchedEffect(signState.value) {
+            when (signState.value) {
+                is SigInState.Success -> {
+                    navigator.push(LobbyScreen())
+                }
+
+                is SigInState.Failed -> {
+                    println("Sign in failed: ${(signState.value as SigInState.Failed).error}")
+                }
+
+                is SigInState.Loading -> {
+                }
             }
 
         }
     }
-
 }
-
-
-
-
+sealed class SigInState {
+    object Loading : SigInState()
+    object Success : SigInState()
+    data class Failed(val error: String) : SigInState()
+}

@@ -13,14 +13,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.limbuserendipity.krocodile.module.viewModelModule
+import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.Res
+import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
-
-import krocodile.composeapp.generated.resources.Res
-import krocodile.composeapp.generated.resources.compose_multiplatform
-import org.koin.core.context.startKoin
-import org.koin.dsl.KoinAppDeclaration
 
 @Composable
 @Preview
@@ -51,4 +47,4 @@ fun App() {
             }
         }
     }
-}
+} 

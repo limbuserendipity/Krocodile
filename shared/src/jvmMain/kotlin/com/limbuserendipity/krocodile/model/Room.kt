@@ -13,7 +13,9 @@ sealed class Room{
 
     data class GameRoom(
         val id : Long,
+        val title : String,
         val players : MutableSet<Player>,
+        val maxPlayers : Int,
         var owner : Player,
         var artist : Player,
     ): Room()

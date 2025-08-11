@@ -22,3 +22,9 @@ sealed class PlayerEvent{
     @SerialName("leave_room")
     data class LeaveRoom(val player: Player) : PlayerEvent()
 }
+@Serializable
+@SerialName("player_data")
+data class PlayerData(
+    val id : String,
+    val name : String
+)

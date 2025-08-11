@@ -17,7 +17,10 @@ sealed class ServerResult {
     @Serializable
     @SerialName("room_state")
     data class RoomState(
-        val players: List<Player>,
+        val roomData : RoomData,
+        val players: List<PlayerData>,
+        var owner : PlayerData,
+        var artist : PlayerData,
     ) : ServerResult()
 
     @Serializable
@@ -42,6 +45,7 @@ sealed class ServerStatus {
 }
 
 @Serializable
+@SerialName("room_data")
 data class RoomData(
     val title : String,
     val roomId : Long,

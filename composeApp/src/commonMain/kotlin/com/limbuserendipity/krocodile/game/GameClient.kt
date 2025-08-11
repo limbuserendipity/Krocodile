@@ -38,11 +38,17 @@ class GameClient(
     val playerState: StateFlow<ServerResult.PlayerState?> = _playerState.asStateFlow()
 
     private val _lobbyState = MutableStateFlow<ServerResult.LobbyState?>(null)
-    val lobbyState : StateFlow<ServerResult.LobbyState?> = _lobbyState.asStateFlow()
+    val lobbyState: StateFlow<ServerResult.LobbyState?> = _lobbyState.asStateFlow()
+
+
+    private val _roomState = MutableStateFlow<ServerResult.RoomState?>(null)
+    val roomState: StateFlow<ServerResult.RoomState?> = _roomState.asStateFlow()
+
 
     init {
 
     }
+
     suspend fun connect() {
         delay(2000)
         client.webSocket(
@@ -76,7 +82,22 @@ class GameClient(
         val gameMessage = GameMessage.PlayerMessage(playerEvent = PlayerEvent.NewPlayer(username))
         sendMessage(gameMessage)
     }
-    suspend fun sendMessage(message: GameMessage) {
+
+    suspend fun sendCreateRoomMessage(
+        title: String,
+        maxPlayers: Int
+    ) {
+        val gameMessage = GameMessage.PlayerMessage(
+            playerEvent = PlayerEvent.NewRoom(
+                player = playerState.value!!.player,
+                title = title,
+                maxPlayers = maxPlayers
+            )
+        )
+        sendMessage(gameMessage)
+    }
+
+    private suspend fun sendMessage(message: GameMessage) {
         println("sendMessage")
         session?.send(Frame.Text(json.encodeToString(message)))
     }
@@ -87,16 +108,21 @@ class GameClient(
             is ServerStatus.Success -> {
                 val result = (message.serverStatus as ServerStatus.Success).result
 
-                when(result){
+                when (result) {
                     is ServerResult.LobbyState -> {
                         println("LobbyState")
                         _lobbyState.emit(result)
                     }
+
                     is ServerResult.PlayerState -> {
                         println("PlayerState")
-                        _playerState.emit(result )
+                        _playerState.emit(result)
                     }
-                    is ServerResult.RoomState -> TODO()
+
+                    is ServerResult.RoomState -> {
+                        println("RoomState")
+                        _roomState.emit(result)
+                    }
                 }
 
             }

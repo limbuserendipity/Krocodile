@@ -3,6 +3,7 @@ package com.limbuserendipity.krocodile
 import com.limbuserendipity.krocodile.json.gameJsonModule
 import com.limbuserendipity.krocodile.model.GameMessage
 import com.limbuserendipity.krocodile.model.Player
+import com.limbuserendipity.krocodile.model.PlayerData
 import com.limbuserendipity.krocodile.model.PlayerEvent
 import com.limbuserendipity.krocodile.model.Room
 import com.limbuserendipity.krocodile.model.RoomData
@@ -10,7 +11,6 @@ import com.limbuserendipity.krocodile.model.ServerResult
 import com.limbuserendipity.krocodile.model.ServerStatus
 import io.ktor.server.websocket.DefaultWebSocketServerSession
 import io.ktor.websocket.Frame
-import io.ktor.websocket.readText
 import io.ktor.websocket.send
 import io.netty.util.internal.logging.Log4JLoggerFactory
 import kotlinx.coroutines.CoroutineScope
@@ -27,7 +27,7 @@ object GameServer {
     }
     private val connections = ConcurrentHashMap<String, DefaultWebSocketServerSession>()
     private val scope = CoroutineScope(Dispatchers.Default)
-    fun add(
+    fun addSession(
         playerId: String,
         connection: DefaultWebSocketServerSession
     ) {
@@ -54,77 +54,71 @@ object GameServer {
     ) {
         val event = (message as GameMessage.PlayerMessage).playerEvent
 
-        val serverStatus : ServerStatus =
-            when (event) {
-                is PlayerEvent.NewPlayer -> {
 
-                    val player = Player(
-                        id = generatePlayerId(),
-                        name = event.name,
-                        isArtist = false,
-                        roomId = Room.Lobby.id
-                    )
+        when (event) {
+            is PlayerEvent.NewPlayer -> {
 
-                    add(player.id, session)
+                val player = Player(
+                    id = generatePlayerId(),
+                    name = event.name,
+                    isArtist = false,
+                    roomId = Room.Lobby.id
+                )
 
-                    Room.Lobby.players.add(player)
+                addSession(player.id, session)
 
-                    val gameMessage = GameMessage.ServerMessage(
-                        serverStatus = ServerStatus.Success(
-                            result = ServerResult.PlayerState(player)
-                        )
-                    )
-                    sendMessage(session, gameMessage)
+                Room.Lobby.players[player.id] = player
 
-                    ServerStatus.Success(
-                        result = currentLobbyState()
-                    )
-                }
+                updatePlayerState(player)
 
-                is PlayerEvent.NewRoom -> {
-                    val room = Room.GameRoom(
-                        id = generateUniqueRandom(),
-                        title = event.title,
-                        players = mutableSetOf(event.player),
-                        maxPlayers = event.maxPlayers,
-                        owner = event.player,
-                        artist = event.player
-                    )
-                    Room.Lobby.rooms[room.id] = room
-                    Room.Lobby.players.first { it.id == event.player.id }.roomId = room.id
-
-                    ServerStatus.Success(
-                        currentLobbyState()
-                    )
-                }
-
-                is PlayerEvent.LeaveRoom -> {
-                    val room = Room.Lobby.rooms[event.player.roomId]
-                    if (room == null) {
-                        event.player.roomId = Room.Lobby.id
-                        return
-                    }
-                    if (room.players.isNotEmpty()) {
-                        if (room.artist == event.player) {
-                            room.artist = room.players.random()
-                        }
-                        if (room.owner == event.player) {
-                            room.owner = room.players.random()
-                        }
-                    } else {
-                        Room.Lobby.rooms.remove(event.player.roomId)
-                    }
-                    room.players.remove(event.player)
-
-                    ServerStatus.Success(
-                        result = currentLobbyState()
-                    )
-                }
             }
+
+            is PlayerEvent.NewRoom -> {
+                val id = generateUniqueRandom()
+                Room.Lobby.players[event.player.id]?.let { player ->
+                    Room.GameRoom(
+                        id = id,
+                        title = event.title,
+                        players = mutableSetOf(player.copy(roomId = id)),
+                        maxPlayers = event.maxPlayers,
+                        owner = player,
+                        artist = player
+                    ).also { room ->
+                        Room.Lobby.rooms[room.id] = room
+                        Room.Lobby.players.remove(player.id)
+                        updateRoomState(room)
+                    }
+                }
+
+            }
+
+            is PlayerEvent.LeaveRoom -> {
+                val room = Room.Lobby.rooms[event.player.roomId]
+                if (room == null) {
+                    event.player.roomId = Room.Lobby.id
+                    return
+                }
+                if (room.players.isNotEmpty()) {
+                    if (room.artist == event.player) {
+                        room.artist = room.players.random()
+                    }
+                    if (room.owner == event.player) {
+                        room.owner = room.players.random()
+                    }
+                } else {
+                    Room.Lobby.rooms.remove(event.player.roomId)
+                }
+                room.players.remove(event.player)
+            }
+        }
+        val serverStatus = ServerStatus.Success(
+            result = currentLobbyState()
+        )
 
         val serverMessage = GameMessage.ServerMessage(
             serverStatus = serverStatus
         )
+
         broadcastMessage(serverMessage)
     }
 
@@ -144,6 +138,57 @@ object GameServer {
             }
         }
     }
+
+    suspend fun updateRoomState(room: Room.GameRoom) {
+        val gameMessage = GameMessage.ServerMessage(
+            serverStatus = ServerStatus.Success(
+                result = ServerResult.RoomState(
+                    roomData = RoomData(
+                        title = room.title,
+                        roomId = room.id,
+                        playerCount = room.players.count(),
+                        maxCount = room.maxPlayers
+                    ),
+                    players = room.players.map { player ->
+                        PlayerData(
+                            id = player.id,
+                            name = player.name
+                        )
+                    },
+                    owner = room.owner.let { player ->
+                        PlayerData(
+                            id = player.id,
+                            name = player.name
+                        )
+                    },
+                    artist = room.artist.let { player ->
+                        PlayerData(
+                            id = player.id,
+                            name = player.name
+                        )
+                    }
+                )
+            )
+        )
+
+        room.players.forEach { player ->
+            connections[player.id]?.let { session ->
+                sendMessage(session, gameMessage)
+            }
+        }
+    }
+
+    suspend fun updatePlayerState(player: Player) {
+        val gameMessage = GameMessage.ServerMessage(
+            serverStatus = ServerStatus.Success(
+                result = ServerResult.PlayerState(player)
+            )
+        )
+        connections[player.id]?.let { session ->
+            sendMessage(session, gameMessage)
+        }
+    }
+
 }
 
 fun currentLobbyState(): ServerResult.LobbyState {

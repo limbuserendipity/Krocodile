@@ -7,7 +7,7 @@ sealed class Room{
 
     object Lobby{
         val id : Long = 0
-        val players = Collections.synchronizedSet(mutableSetOf<Player>())
+        val players = ConcurrentHashMap<String, Player>()
         val rooms = ConcurrentHashMap<Long, GameRoom>()
     }
 

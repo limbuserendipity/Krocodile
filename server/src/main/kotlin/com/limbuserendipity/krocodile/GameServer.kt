@@ -1,25 +1,15 @@
 package com.limbuserendipity.krocodile
 
 import com.limbuserendipity.krocodile.json.gameJsonModule
-import com.limbuserendipity.krocodile.model.GameMessage
-import com.limbuserendipity.krocodile.model.GameState
-import com.limbuserendipity.krocodile.model.Player
-import com.limbuserendipity.krocodile.model.PlayerData
-import com.limbuserendipity.krocodile.model.PlayerEvent
-import com.limbuserendipity.krocodile.model.Room
-import com.limbuserendipity.krocodile.model.RoomData
-import com.limbuserendipity.krocodile.model.ServerResult
-import com.limbuserendipity.krocodile.model.ServerStatus
-import io.ktor.server.websocket.DefaultWebSocketServerSession
-import io.ktor.websocket.Frame
-import io.ktor.websocket.send
+import com.limbuserendipity.krocodile.model.*
+import io.ktor.server.websocket.*
+import io.ktor.websocket.*
 import io.netty.util.internal.logging.Log4JLoggerFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.set
 
 object GameServer {
     private val json = Json {
@@ -84,7 +74,8 @@ object GameServer {
                         owner = player,
                         artist = player,
                         state = GameState.Wait,
-                        word = ""
+                        word = "",
+                        chat = mutableListOf()
                     ).also { room ->
                         player.roomId = id
                         room.players.put(player.id, player)
@@ -128,9 +119,10 @@ object GameServer {
                     val room = Room.Lobby.rooms.getOrElse(event.roomId) {
                         throw Exception("Room d`t exist")
                     }
-
+                    player.roomId = room.id
                     Room.Lobby.rooms[event.roomId]?.players?.put(player.id, player)
-                    Room.Lobby.players[event.player.id] = player.copy(roomId = event.roomId)
+                    Room.Lobby.players.remove(player.id)
+
                     if (room.players.count() == room.maxPlayers) {
                         runGameInRoom(room)
                     }
@@ -147,6 +139,23 @@ object GameServer {
                     println("room not null")
                     room.word = event.word
                     room.state = GameState.Run
+                    updateRoomState(room)
+                }
+            }
+
+            is PlayerEvent.ChatMessage -> {
+                Room.Lobby.rooms[event.player.roomId]?.let { room ->
+                    println("ChatMessage ${event.player}: ${event.message}")
+                    room.chat.add(
+                        ChatMessageData(
+                            playerName = event.player.name,
+                            message = event.message
+                        )
+                    )
+                    if (event.message.lowercase() == room.word.lowercase()) {
+                        room.state = GameState.Wait
+                        runGameInRoom(room)
+                    }
                     updateRoomState(room)
                 }
             }
@@ -181,7 +190,7 @@ object GameServer {
                         title = room.title,
                         roomId = room.id,
                         playerCount = room.players.count(),
-                        maxCount = room.maxPlayers
+                        maxCount = room.maxPlayers,
                     ),
                     players = room.players.values.map { player ->
                         PlayerData(
@@ -201,7 +210,8 @@ object GameServer {
                             name = player.name
                         )
                     },
-                    gameState = room.state
+                    gameState = room.state,
+                    chat = room.chat
                 )
             )
         )

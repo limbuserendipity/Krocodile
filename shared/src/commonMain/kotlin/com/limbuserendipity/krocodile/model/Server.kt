@@ -21,7 +21,8 @@ sealed class ServerResult {
         val players: List<PlayerData>,
         var owner : PlayerData,
         var artist : PlayerData,
-        val gameState: GameState
+        val gameState: GameState,
+        val chat : List<ChatMessageData>
     ) : ServerResult()
 
     @Serializable

@@ -37,6 +37,13 @@ sealed class PlayerEvent {
         val word : String
     ) : PlayerEvent()
 
+    @Serializable
+    @SerialName("chat_message")
+    data class ChatMessage(
+        val player: Player,
+        val message: String
+    ) : PlayerEvent()
+
 }
 
 @Serializable
@@ -44,4 +51,11 @@ sealed class PlayerEvent {
 data class PlayerData(
     val id: String,
     val name: String
+)
+
+@Serializable
+@SerialName("chat_message_data")
+data class ChatMessageData(
+    val playerName : String,
+    val message : String
 )

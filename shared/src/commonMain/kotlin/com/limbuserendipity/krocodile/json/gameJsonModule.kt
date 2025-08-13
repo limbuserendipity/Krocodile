@@ -35,6 +35,7 @@ val gameJsonModule = SerializersModule {
         subclass(PlayerEvent.LeaveRoom::class)
         subclass(PlayerEvent.EnterToRoom::class)
         subclass(PlayerEvent.Word::class)
+        subclass(PlayerEvent.ChatMessage::class)
     }
 
     polymorphic(GameState::class) {

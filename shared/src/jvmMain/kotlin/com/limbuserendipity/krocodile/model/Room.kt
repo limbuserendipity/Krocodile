@@ -20,6 +20,7 @@ sealed class Room{
         var owner : Player,
         var artist : Player,
         var state : GameState,
-        var word : String
+        var word : String,
+        val chat : MutableList<ChatMessageData>
     ): Room()
 }

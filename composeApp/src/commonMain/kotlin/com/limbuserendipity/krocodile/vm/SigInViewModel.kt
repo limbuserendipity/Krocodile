@@ -11,8 +11,8 @@ import kotlinx.coroutines.launch
 
 
 class SigInViewModel(
-    val client : GameClient
-) : ViewModel(){
+    val client: GameClient
+) : ViewModel() {
 
     private val _screenState = MutableStateFlow<ScreenState>(ScreenState.Loading)
     val screenState: StateFlow<ScreenState> = _screenState
@@ -36,7 +36,7 @@ class SigInViewModel(
         }
     }
 
-    fun connectToServer(){
+    fun connectToServer() {
         viewModelScope.launch {
             client.connect()
         }

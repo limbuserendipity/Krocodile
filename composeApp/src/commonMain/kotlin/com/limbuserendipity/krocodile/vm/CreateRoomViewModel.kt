@@ -15,18 +15,18 @@ class CreateRoomViewModel(
 
     val playerState = client.playerState
     val roomState = client.roomState
-    private val _screenState : MutableStateFlow<ScreenState> = MutableStateFlow(ScreenState.Loading)
-    val screenState : StateFlow<ScreenState> = _screenState.asStateFlow()
+    private val _screenState: MutableStateFlow<ScreenState> = MutableStateFlow(ScreenState.Loading)
+    val screenState: StateFlow<ScreenState> = _screenState.asStateFlow()
 
-    init{
+    init {
         observeRoomState()
     }
 
     private fun observeRoomState() {
         viewModelScope.launch {
             client.roomState.collect { state ->
-                if(state != null && playerState.value != null){
-                    if(playerState.value!!.player.id == state.owner.id){
+                if (state != null && playerState.value != null) {
+                    if (playerState.value!!.player.id == state.owner.id) {
                         _screenState.emit(ScreenState.Success)
                     }
                 }
@@ -35,9 +35,9 @@ class CreateRoomViewModel(
     }
 
     fun createRoom(
-        title : String,
-        maxPlayers : Int
-    ){
+        title: String,
+        maxPlayers: Int
+    ) {
         viewModelScope.launch {
             client.sendCreateRoomMessage(
                 title = title,
@@ -45,7 +45,6 @@ class CreateRoomViewModel(
             )
         }
     }
-
 
 
 }

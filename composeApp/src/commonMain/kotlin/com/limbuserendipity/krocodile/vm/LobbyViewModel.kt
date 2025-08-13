@@ -9,19 +9,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class LobbyViewModel(
-    val client : GameClient
-) : ViewModel(){
+    val client: GameClient
+) : ViewModel() {
 
     val lobbyState = client.lobbyState
     val roomState = client.roomState
     private val _screenState = MutableStateFlow<ScreenState>(ScreenState.Loading)
     val screenState: StateFlow<ScreenState> = _screenState
 
-    fun observeRoomState(){
+    fun observeRoomState() {
         viewModelScope.launch {
             client.roomState.collect { room ->
-                if(room != null){
-                    if(client.playerState.value?.player?.roomId == room.roomData.roomId){
+                if (room != null) {
+                    if (client.playerState.value?.player?.roomId == room.roomData.roomId) {
                         _screenState.emit(ScreenState.Success)
                     }
                 }

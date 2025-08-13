@@ -12,16 +12,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import com.limbuserendipity.krocodile.component.Chat
+import com.limbuserendipity.krocodile.component.ChatInput
 import com.limbuserendipity.krocodile.model.GameState
 import com.limbuserendipity.krocodile.util.Space
 import com.limbuserendipity.krocodile.vm.RoomViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 
-class RoomScreen : Screen{
+class RoomScreen : Screen {
     @Composable
     override fun Content() {
-        val viewModel : RoomViewModel = koinViewModel()
+        val viewModel: RoomViewModel = koinViewModel()
         var words = remember {
             mutableStateOf(listOf<String>())
         }
@@ -31,37 +33,52 @@ class RoomScreen : Screen{
 
         val state = viewModel.screenState.collectAsState()
 
+        val roomState = viewModel.roomState.collectAsState()
+
+        val chat = viewModel.chatMessage.collectAsState(listOf())
+
         Box(
             contentAlignment = Alignment.Center
-        ){
+        ) {
 
             Column(
                 verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.Start,
                 modifier = Modifier
                     .fillMaxSize()
                     .background(color = MaterialTheme.colorScheme.background)
                     .padding(16.dp)
             ) {
 
-                viewModel.roomState.value?.let {
-
-                    Text(text = it.roomData.title)
-                    8.dp.Space()
-                    Text(text = it.artist.toString())
-                    8.dp.Space()
-                    Text(text = it.players.count().toString())
-                    8.dp.Space()
-                    Text(text = if(it.gameState == GameState.Wait){
-                        "Wait"
-                    }else{
-                        "Run"
-                    })
-                    8.dp.Space()
+                roomState.value?.let {
+                    Row(){
+                        Text(text = it.roomData.title)
+                        8.dp.Space()
+                        Text(text = it.players.count().toString())
+                        8.dp.Space()
+                        Text(
+                            text = if (it.gameState == GameState.Wait) {
+                                "Wait"
+                            } else {
+                                "Run"
+                            }
+                        )
+                    }
                 }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Chat(messages = chat.value)
+
+                ChatInput(
+                    onSendClick = { message ->
+                        viewModel.sendChatMessage(message)
+                    }
+                )
+
             }
 
-            if(showDialog){
+            if (showDialog) {
                 println("showDialog")
                 WordsDialog(
                     words = words.value,
@@ -73,16 +90,18 @@ class RoomScreen : Screen{
             }
         }
 
-        LaunchedEffect(state.value){
-            when(state.value){
+        LaunchedEffect(state.value) {
+            when (state.value) {
                 is RoomScreenState.Success -> {
                     println("Success")
                     words.value = (state.value as RoomScreenState.Success).words
                     showDialog = true
                 }
+
                 is RoomScreenState.Failed -> {
 
                 }
+
                 RoomScreenState.Loading -> {
 
                 }
@@ -94,20 +113,20 @@ class RoomScreen : Screen{
 
     @Composable
     fun WordsDialog(
-        words : List<String>,
-        onWordClick : (String) -> Unit
-    ){
+        words: List<String>,
+        onWordClick: (String) -> Unit
+    ) {
         Surface(
             shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 1.dp,
             shadowElevation = 1.dp
-        ){
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.padding(vertical = 32.dp)
-            ){
+            ) {
                 2.dp.Space()
                 words.forEach { word ->
                     WordItem(
@@ -124,18 +143,18 @@ class RoomScreen : Screen{
 
     @Composable
     fun WordItem(
-        word : String,
-        onClick : () -> Unit
-    ){
+        word: String,
+        onClick: () -> Unit
+    ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .background(color = MaterialTheme.colorScheme.background)
                 .padding(vertical = 8.dp, horizontal = 16.dp)
-                .clickable{
+                .clickable {
                     onClick()
                 }
-        ){
+        ) {
             Text(
                 text = word,
                 style = MaterialTheme.typography.bodyMedium
@@ -144,11 +163,12 @@ class RoomScreen : Screen{
     }
 }
 
-sealed class RoomScreenState{
+sealed class RoomScreenState {
 
     data class Success(
-        val words : List<String>
+        val words: List<String>
     ) : RoomScreenState()
+
     object Loading : RoomScreenState()
     data class Failed(val error: String) : RoomScreenState()
 

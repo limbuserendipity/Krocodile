@@ -18,7 +18,7 @@ import com.limbuserendipity.krocodile.vm.LobbyViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 
-class LobbyScreen() : Screen{
+class LobbyScreen() : Screen {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -44,7 +44,7 @@ class LobbyScreen() : Screen{
                         onClick = {
                             navigator.push(CreateRoomScreen())
                         }
-                    ){
+                    ) {
                         Icon(
                             painter = painterResource(resource = Res.drawable.baseline_add_24),
                             contentDescription = "add room"

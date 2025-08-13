@@ -4,22 +4,13 @@ import com.limbuserendipity.krocodile.model.GameMessage
 import com.limbuserendipity.krocodile.model.PlayerEvent
 import com.limbuserendipity.krocodile.model.ServerResult
 import com.limbuserendipity.krocodile.model.ServerStatus
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
-import io.ktor.client.plugins.websocket.webSocket
-
-import io.ktor.http.HttpMethod
-import io.ktor.websocket.Frame
-import io.ktor.websocket.close
-import io.ktor.websocket.readText
+import io.ktor.client.*
+import io.ktor.client.plugins.websocket.*
+import io.ktor.http.*
+import io.ktor.websocket.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -95,8 +86,8 @@ class GameClient(
     }
 
     suspend fun sendEnterToRoomMessage(
-        roomId : Long
-    ){
+        roomId: Long
+    ) {
         val gameMessage = GameMessage.PlayerMessage(
             playerEvent = PlayerEvent.EnterToRoom(player = playerState.value!!.player, roomId = roomId)
         )
@@ -129,6 +120,7 @@ class GameClient(
                         println("RoomState")
                         _roomState.emit(result)
                     }
+
                     is ServerResult.Words -> {
                         println("Words")
                         _words.emit(result.words)
@@ -151,6 +143,16 @@ class GameClient(
             playerEvent = PlayerEvent.Word(
                 player = playerState.value!!.player,
                 word = word
+            )
+        )
+        sendMessage(gameMessage)
+    }
+
+    suspend fun sendChatMessage(message: String) {
+        val gameMessage = GameMessage.PlayerMessage(
+            playerEvent = PlayerEvent.ChatMessage(
+                player = playerState.value!!.player,
+                message = message
             )
         )
         sendMessage(gameMessage)

@@ -79,6 +79,7 @@ class SigInScreen() : Screen {
         }
     }
 }
+
 sealed class ScreenState {
     object Loading : ScreenState()
     object Success : ScreenState()

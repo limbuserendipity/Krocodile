@@ -1,6 +1,7 @@
 package com.limbuserendipity.krocodile.model
 
 import java.util.Collections
+import java.util.LinkedHashSet
 import java.util.concurrent.ConcurrentHashMap
 
 sealed class Room{
@@ -14,9 +15,11 @@ sealed class Room{
     data class GameRoom(
         val id : Long,
         val title : String,
-        val players : MutableSet<Player>,
+        val players : ConcurrentHashMap<String,Player>,
         val maxPlayers : Int,
         var owner : Player,
         var artist : Player,
+        var state : GameState,
+        var word : String
     ): Room()
 }

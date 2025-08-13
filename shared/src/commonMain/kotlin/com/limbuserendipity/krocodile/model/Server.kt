@@ -21,12 +21,19 @@ sealed class ServerResult {
         val players: List<PlayerData>,
         var owner : PlayerData,
         var artist : PlayerData,
+        val gameState: GameState
     ) : ServerResult()
 
     @Serializable
     @SerialName("player_state")
     data class PlayerState(
         val player : Player
+    ) : ServerResult()
+
+    @Serializable
+    @SerialName("words")
+    data class Words(
+        val words : List<String>
     ) : ServerResult()
 
 }

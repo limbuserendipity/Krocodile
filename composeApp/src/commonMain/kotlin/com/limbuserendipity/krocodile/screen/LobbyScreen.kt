@@ -3,18 +3,14 @@ package com.limbuserendipity.krocodile.screen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MediumTopAppBar
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.limbuserendipity.krocodile.component.RoomList
 import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.Res
 import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.baseline_add_24
@@ -27,8 +23,13 @@ class LobbyScreen() : Screen{
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
-        val lobbyViewModel: LobbyViewModel = koinViewModel()
-        val lobbyState = lobbyViewModel.lobbyState.collectAsState()
+        val viewModel: LobbyViewModel = koinViewModel()
+        val lobbyState = viewModel.lobbyState.collectAsState()
+
+        val screenState = viewModel.screenState.collectAsState()
+
+        val navigator = LocalNavigator.currentOrThrow
+
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -41,7 +42,7 @@ class LobbyScreen() : Screen{
                 actions = {
                     IconButton(
                         onClick = {
-
+                            navigator.push(CreateRoomScreen())
                         }
                     ){
                         Icon(
@@ -56,9 +57,30 @@ class LobbyScreen() : Screen{
 
             )
             lobbyState.value?.let {
-                RoomList(it.rooms)
+                RoomList(
+                    rooms = it.rooms,
+                    onRoomClick = { roomId ->
+                        viewModel.enterToRoom(roomId)
+                        navigator.push(RoomScreen())
+                    }
+                )
             }
-
         }
+
+        LaunchedEffect(screenState.value) {
+            when (screenState.value) {
+                is ScreenState.Success -> {
+                    navigator.push(RoomScreen())
+                }
+
+                is ScreenState.Failed -> {
+                    println("Sign in failed: ${(screenState.value as ScreenState.Failed).error}")
+                }
+
+                is ScreenState.Loading -> {
+                }
+            }
+        }
+
     }
 }

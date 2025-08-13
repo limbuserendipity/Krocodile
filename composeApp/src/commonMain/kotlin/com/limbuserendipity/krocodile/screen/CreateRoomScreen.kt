@@ -24,7 +24,7 @@ class CreateRoomScreen() : Screen {
 
         val viewModel: CreateRoomViewModel = koinViewModel()
         val navigator = LocalNavigator.currentOrThrow
-        val state = viewModel.createRoomState.collectAsState()
+        val state = viewModel.screenState.collectAsState()
 
         Column(
             verticalArrangement = Arrangement.Center,
@@ -36,7 +36,7 @@ class CreateRoomScreen() : Screen {
         ) {
 
             var title by remember { mutableStateOf("") }
-            var sliderPosition by remember { mutableStateOf(0f) }
+            var sliderPosition by remember { mutableStateOf(2f) }
 
             MediumTopAppBar(
                 title = {
@@ -107,19 +107,13 @@ class CreateRoomScreen() : Screen {
             }
             LaunchedEffect(state.value) {
                 when (state.value) {
-                    is CreateRoomState.Failed -> {}
-                    is CreateRoomState.Loading -> {}
-                    is CreateRoomState.Success -> {
+                    is ScreenState.Failed -> {}
+                    is ScreenState.Loading -> {}
+                    is ScreenState.Success -> {
                         navigator.push(RoomScreen())
                     }
                 }
             }
         }
     }
-}
-
-sealed class CreateRoomState {
-    object Loading : CreateRoomState()
-    object Success : CreateRoomState()
-    data class Failed(val error: String) : CreateRoomState()
 }

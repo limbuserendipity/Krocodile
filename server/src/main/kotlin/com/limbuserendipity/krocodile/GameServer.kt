@@ -2,6 +2,7 @@ package com.limbuserendipity.krocodile
 
 import com.limbuserendipity.krocodile.json.gameJsonModule
 import com.limbuserendipity.krocodile.model.GameMessage
+import com.limbuserendipity.krocodile.model.GameState
 import com.limbuserendipity.krocodile.model.Player
 import com.limbuserendipity.krocodile.model.PlayerData
 import com.limbuserendipity.krocodile.model.PlayerEvent
@@ -54,7 +55,6 @@ object GameServer {
     ) {
         val event = (message as GameMessage.PlayerMessage).playerEvent
 
-
         when (event) {
             is PlayerEvent.NewPlayer -> {
 
@@ -79,14 +79,19 @@ object GameServer {
                     Room.GameRoom(
                         id = id,
                         title = event.title,
-                        players = mutableSetOf(player.copy(roomId = id)),
+                        players = ConcurrentHashMap(),
                         maxPlayers = event.maxPlayers,
                         owner = player,
-                        artist = player
+                        artist = player,
+                        state = GameState.Wait,
+                        word = ""
                     ).also { room ->
+                        player.roomId = id
+                        room.players.put(player.id, player)
                         Room.Lobby.rooms[room.id] = room
                         Room.Lobby.players.remove(player.id)
                         updateRoomState(room)
+                        updatePlayerState(player)
                     }
                 }
 
@@ -100,26 +105,55 @@ object GameServer {
                 }
                 if (room.players.isNotEmpty()) {
                     if (room.artist == event.player) {
-                        room.artist = room.players.random()
+                        val artist = room.players.values.random()
+                        artist.isArtist = true
+                        room.artist = artist
+                        room.state = GameState.Wait
                     }
                     if (room.owner == event.player) {
-                        room.owner = room.players.random()
+                        val owner = room.players.values.random()
+                        room.owner = owner
                     }
                 } else {
                     Room.Lobby.rooms.remove(event.player.roomId)
+
                 }
-                room.players.remove(event.player)
+                room.players.remove(event.player.id)
+                updateRoomState(room)
+                updatePlayerState(event.player)
+            }
+
+            is PlayerEvent.EnterToRoom -> {
+                Room.Lobby.players[event.player.id]?.let { player ->
+                    val room = Room.Lobby.rooms.getOrElse(event.roomId) {
+                        throw Exception("Room d`t exist")
+                    }
+
+                    Room.Lobby.rooms[event.roomId]?.players?.put(player.id, player)
+                    Room.Lobby.players[event.player.id] = player.copy(roomId = event.roomId)
+                    if (room.players.count() == room.maxPlayers) {
+                        runGameInRoom(room)
+                    }
+
+                    updateRoomState(room)
+                    updatePlayerState(player)
+                }
+            }
+
+            is PlayerEvent.Word -> {
+                println("word")
+                val room = Room.Lobby.rooms[event.player.roomId]
+                if (room != null) {
+                    println("room not null")
+                    room.word = event.word
+                    room.state = GameState.Run
+                    updateRoomState(room)
+                }
             }
         }
-        val serverStatus = ServerStatus.Success(
-            result = currentLobbyState()
-        )
 
-        val serverMessage = GameMessage.ServerMessage(
-            serverStatus = serverStatus
-        )
+        updateLobbyState()
 
-        broadcastMessage(serverMessage)
     }
 
 
@@ -149,7 +183,7 @@ object GameServer {
                         playerCount = room.players.count(),
                         maxCount = room.maxPlayers
                     ),
-                    players = room.players.map { player ->
+                    players = room.players.values.map { player ->
                         PlayerData(
                             id = player.id,
                             name = player.name
@@ -166,12 +200,13 @@ object GameServer {
                             id = player.id,
                             name = player.name
                         )
-                    }
+                    },
+                    gameState = room.state
                 )
             )
         )
 
-        room.players.forEach { player ->
+        room.players.values.forEach { player ->
             connections[player.id]?.let { session ->
                 sendMessage(session, gameMessage)
             }
@@ -189,6 +224,50 @@ object GameServer {
         }
     }
 
+    suspend fun updateLobbyState() {
+        val serverStatus = ServerStatus.Success(
+            result = currentLobbyState()
+        )
+
+        val serverMessage = GameMessage.ServerMessage(
+            serverStatus = serverStatus
+        )
+
+        Room.Lobby.players.keys.forEach { id ->
+            connections[id]?.let {
+                sendMessage(it, serverMessage)
+            }
+        }
+
+    }
+
+    suspend fun updateWords(
+        artist: Player
+    ) {
+        val gameMessage = GameMessage.ServerMessage(
+            serverStatus = ServerStatus.Success(
+                result = ServerResult.Words(words = words)
+            )
+        )
+        sendMessage(
+            session = connections[artist.id]!!,
+            message = gameMessage
+        )
+    }
+
+
+    suspend fun runGameInRoom(room: Room.GameRoom) {
+        if (room.players.count() == room.maxPlayers) {
+//            val artist = room.players.values.random()
+//            artist.isArtist = true
+//            room.artist = artist
+            updateRoomState(room)
+            updateWords(room.artist)
+        } else {
+            room.state = GameState.Wait
+        }
+    }
+
 }
 
 fun currentLobbyState(): ServerResult.LobbyState {
@@ -203,3 +282,9 @@ fun currentLobbyState(): ServerResult.LobbyState {
         }
     )
 }
+
+val words = listOf(
+    "Tree",
+    "Home",
+    "Car"
+)

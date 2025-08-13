@@ -1,11 +1,9 @@
 package com.limbuserendipity.krocodile.game
 
 import com.limbuserendipity.krocodile.model.GameMessage
-import com.limbuserendipity.krocodile.model.Player
 import com.limbuserendipity.krocodile.model.PlayerEvent
 import com.limbuserendipity.krocodile.model.ServerResult
 import com.limbuserendipity.krocodile.model.ServerStatus
-import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.webSocket
@@ -20,6 +18,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -44,10 +43,8 @@ class GameClient(
     private val _roomState = MutableStateFlow<ServerResult.RoomState?>(null)
     val roomState: StateFlow<ServerResult.RoomState?> = _roomState.asStateFlow()
 
-
-    init {
-
-    }
+    private val _words = MutableSharedFlow<List<String>>()
+    val words = _words.asSharedFlow()
 
     suspend fun connect() {
         delay(2000)
@@ -97,6 +94,15 @@ class GameClient(
         sendMessage(gameMessage)
     }
 
+    suspend fun sendEnterToRoomMessage(
+        roomId : Long
+    ){
+        val gameMessage = GameMessage.PlayerMessage(
+            playerEvent = PlayerEvent.EnterToRoom(player = playerState.value!!.player, roomId = roomId)
+        )
+        sendMessage(gameMessage)
+    }
+
     private suspend fun sendMessage(message: GameMessage) {
         println("sendMessage")
         session?.send(Frame.Text(json.encodeToString(message)))
@@ -123,8 +129,11 @@ class GameClient(
                         println("RoomState")
                         _roomState.emit(result)
                     }
+                    is ServerResult.Words -> {
+                        println("Words")
+                        _words.emit(result.words)
+                    }
                 }
-
             }
 
             is ServerStatus.Error -> TODO()
@@ -135,6 +144,16 @@ class GameClient(
     suspend fun disconnect() {
         session?.close()
         session = null
+    }
+
+    suspend fun sendWordMessage(word: String) {
+        val gameMessage = GameMessage.PlayerMessage(
+            playerEvent = PlayerEvent.Word(
+                player = playerState.value!!.player,
+                word = word
+            )
+        )
+        sendMessage(gameMessage)
     }
 
 }

@@ -3,7 +3,7 @@ package com.limbuserendipity.krocodile.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.limbuserendipity.krocodile.game.GameClient
-import com.limbuserendipity.krocodile.screen.CreateRoomState
+import com.limbuserendipity.krocodile.screen.ScreenState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,8 +15,8 @@ class CreateRoomViewModel(
 
     val playerState = client.playerState
     val roomState = client.roomState
-    private val _createRoomState : MutableStateFlow<CreateRoomState> = MutableStateFlow(CreateRoomState.Loading)
-    val createRoomState : StateFlow<CreateRoomState> = _createRoomState.asStateFlow()
+    private val _screenState : MutableStateFlow<ScreenState> = MutableStateFlow(ScreenState.Loading)
+    val screenState : StateFlow<ScreenState> = _screenState.asStateFlow()
 
     init{
         observeRoomState()
@@ -27,7 +27,7 @@ class CreateRoomViewModel(
             client.roomState.collect { state ->
                 if(state != null && playerState.value != null){
                     if(playerState.value!!.player.id == state.owner.id){
-                        _createRoomState.emit(CreateRoomState.Success)
+                        _screenState.emit(ScreenState.Success)
                     }
                 }
             }

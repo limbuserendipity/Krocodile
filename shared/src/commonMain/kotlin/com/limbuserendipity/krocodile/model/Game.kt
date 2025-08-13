@@ -29,3 +29,15 @@ sealed class GameMessage {
     data class Guess(val text: String) : GameMessage()
 
 }
+
+@Serializable
+@Polymorphic
+sealed class GameState{
+    @Serializable
+    @SerialName("wait")
+    object Wait : GameState()
+    @Serializable
+    @SerialName("run")
+    object Run : GameState()
+
+}

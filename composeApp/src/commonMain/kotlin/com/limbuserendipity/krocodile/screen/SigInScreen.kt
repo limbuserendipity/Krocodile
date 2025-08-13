@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -26,7 +25,7 @@ class SigInScreen() : Screen {
     override fun Content() {
         val viewModel: SigInViewModel = koinViewModel()
         val navigator = LocalNavigator.currentOrThrow
-        val signState = viewModel.signState.collectAsState()
+        val signState = viewModel.screenState.collectAsState()
 
         var ipAddress by remember {
             mutableStateOf("")
@@ -66,23 +65,22 @@ class SigInScreen() : Screen {
 
         LaunchedEffect(signState.value) {
             when (signState.value) {
-                is SigInState.Success -> {
+                is ScreenState.Success -> {
                     navigator.push(LobbyScreen())
                 }
 
-                is SigInState.Failed -> {
-                    println("Sign in failed: ${(signState.value as SigInState.Failed).error}")
+                is ScreenState.Failed -> {
+                    println("Sign in failed: ${(signState.value as ScreenState.Failed).error}")
                 }
 
-                is SigInState.Loading -> {
+                is ScreenState.Loading -> {
                 }
             }
-
         }
     }
 }
-sealed class SigInState {
-    object Loading : SigInState()
-    object Success : SigInState()
-    data class Failed(val error: String) : SigInState()
+sealed class ScreenState {
+    object Loading : ScreenState()
+    object Success : ScreenState()
+    data class Failed(val error: String) : ScreenState()
 }

@@ -5,15 +5,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import com.limbuserendipity.krocodile.component.Chat
 import com.limbuserendipity.krocodile.component.ChatInput
+import com.limbuserendipity.krocodile.component.DrawingCanvas
 import com.limbuserendipity.krocodile.model.GameState
 import com.limbuserendipity.krocodile.util.Space
 import com.limbuserendipity.krocodile.vm.RoomViewModel
@@ -37,45 +40,52 @@ class RoomScreen : Screen {
 
         val chat = viewModel.chatMessage.collectAsState(listOf())
 
+        val currentPath = viewModel.currentPath.collectAsState()
+        val completedPaths = viewModel.completedPaths.collectAsState()
+        val usersPath = viewModel.userPaths.collectAsState()
+
+
         Box(
             contentAlignment = Alignment.Center
         ) {
 
-            Column(
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.background)
-                    .padding(16.dp)
-            ) {
-
-                roomState.value?.let {
-                    Row(){
-                        Text(text = it.roomData.title)
-                        8.dp.Space()
-                        Text(text = it.players.count().toString())
-                        8.dp.Space()
-                        Text(
-                            text = if (it.gameState == GameState.Wait) {
-                                "Wait"
-                            } else {
-                                "Run"
-                            }
-                        )
+            Scaffold(
+                topBar = {
+                    roomState.value?.let {
+                        Row(){
+                            Text(text = it.roomData.title)
+                            8.dp.Space()
+                            Text(text = it.players.count().toString())
+                            8.dp.Space()
+                            Text(
+                                text = if (it.gameState == GameState.Wait) {
+                                    "Wait"
+                                } else {
+                                    "Run"
+                                }
+                            )
+                        }
                     }
+                },
+                bottomBar = {
+                    Chat(messages = chat.value)
+
+                    ChatInput(
+                        onSendClick = { message ->
+                            viewModel.sendChatMessage(message)
+                        }
+                    )
                 }
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                Chat(messages = chat.value)
-
-                ChatInput(
-                    onSendClick = { message ->
-                        viewModel.sendChatMessage(message)
-                    }
+            ) { paddingValues ->
+                DrawingCanvas(
+                    paddingValues = paddingValues,
+                    currentPath = currentPath.value,
+                    completedPaths = completedPaths.value,
+                    usersPath = usersPath.value.values.toList(),
+                    onDragStart = viewModel::onDragStart,
+                    onDrag = viewModel::onDrag,
+                    onDragEnd = viewModel::onDragEnd
                 )
-
             }
 
             if (showDialog) {

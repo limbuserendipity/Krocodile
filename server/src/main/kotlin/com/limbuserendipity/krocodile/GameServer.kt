@@ -32,9 +32,6 @@ object GameServer {
             is GameMessage.PlayerMessage -> {
                 handlePlayerMessage(session, message)
             }
-
-            is GameMessage.Drawing -> {}
-            is GameMessage.Guess -> {}
             is GameMessage.ServerMessage -> {}
         }
     }
@@ -75,7 +72,7 @@ object GameServer {
                         artist = player,
                         state = GameState.Wait,
                         word = "",
-                        chat = mutableListOf()
+                        chat = mutableListOf(),
                     ).also { room ->
                         player.roomId = id
                         room.players.put(player.id, player)
@@ -158,6 +155,10 @@ object GameServer {
                     }
                     updateRoomState(room)
                 }
+            }
+            is PlayerEvent.Drawing -> {
+                println("drawing")
+                updateDrawing(event)
             }
         }
 
@@ -265,6 +266,27 @@ object GameServer {
         )
     }
 
+    suspend fun updateDrawing(event: PlayerEvent.Drawing) {
+        val room = Room.Lobby.rooms[event.player.roomId]
+        println("drawing ${event.player.roomId}")
+        val gameMessage = GameMessage.ServerMessage(
+            serverStatus = ServerStatus.Success(
+                result = ServerResult.DrawingState(
+                    playerId = event.player.id,
+                    pathData = event.pathData
+                )
+            )
+        )
+        room?.players?.values?.forEach { player ->
+            println("room player: ${player.name}")
+            if(player.id != event.player.id){
+                sendMessage(
+                    session = connections[player.id]!!,
+                    message = gameMessage
+                )
+            }
+        }
+    }
 
     suspend fun runGameInRoom(room: Room.GameRoom) {
         if (room.players.count() == room.maxPlayers) {

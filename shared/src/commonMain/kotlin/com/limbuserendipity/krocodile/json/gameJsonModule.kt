@@ -1,5 +1,6 @@
 package com.limbuserendipity.krocodile.json
 
+import com.limbuserendipity.krocodile.model.DrawState
 import com.limbuserendipity.krocodile.model.GameMessage
 import com.limbuserendipity.krocodile.model.GameState
 import com.limbuserendipity.krocodile.model.PlayerEvent
@@ -13,8 +14,6 @@ val gameJsonModule = SerializersModule {
     polymorphic(GameMessage::class){
         subclass(GameMessage.PlayerMessage::class)
         subclass(GameMessage.ServerMessage::class)
-        subclass(GameMessage.Drawing::class)
-        subclass(GameMessage.Guess::class)
     }
 
     polymorphic(ServerStatus::class){
@@ -27,6 +26,7 @@ val gameJsonModule = SerializersModule {
         subclass(ServerResult.RoomState::class)
         subclass(ServerResult.PlayerState::class)
         subclass(ServerResult.Words::class)
+        subclass(ServerResult.DrawingState::class)
     }
 
     polymorphic(PlayerEvent::class) {
@@ -36,11 +36,18 @@ val gameJsonModule = SerializersModule {
         subclass(PlayerEvent.EnterToRoom::class)
         subclass(PlayerEvent.Word::class)
         subclass(PlayerEvent.ChatMessage::class)
+        subclass(PlayerEvent.Drawing::class)
     }
 
     polymorphic(GameState::class) {
         subclass(GameState.Wait::class)
         subclass(GameState.Run::class)
+    }
+
+    polymorphic(DrawState::class) {
+        subclass(DrawState.DrawStart::class)
+        subclass(DrawState.Drawing::class)
+        subclass(DrawState.DrawEnd::class)
     }
 
 }

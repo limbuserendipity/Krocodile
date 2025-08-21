@@ -21,6 +21,6 @@ sealed class Room{
         var artist : Player,
         var state : GameState,
         var word : String,
-        val chat : MutableList<ChatMessageData>
+        val chat : MutableList<ChatMessageData>,
     ): Room()
 }

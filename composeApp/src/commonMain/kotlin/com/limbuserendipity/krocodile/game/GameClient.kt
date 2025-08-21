@@ -1,6 +1,8 @@
 package com.limbuserendipity.krocodile.game
 
+import com.limbuserendipity.krocodile.model.DrawState
 import com.limbuserendipity.krocodile.model.GameMessage
+import com.limbuserendipity.krocodile.model.PathData
 import com.limbuserendipity.krocodile.model.PlayerEvent
 import com.limbuserendipity.krocodile.model.ServerResult
 import com.limbuserendipity.krocodile.model.ServerStatus
@@ -36,6 +38,9 @@ class GameClient(
 
     private val _words = MutableSharedFlow<List<String>>()
     val words = _words.asSharedFlow()
+
+    private val _drawingState = MutableSharedFlow<ServerResult.DrawingState>()
+    val drawingState = _drawingState.asSharedFlow()
 
     suspend fun connect() {
         delay(2000)
@@ -125,6 +130,12 @@ class GameClient(
                         println("Words")
                         _words.emit(result.words)
                     }
+
+                    is ServerResult.DrawingState -> {
+                        println("Drawing")
+                        _drawingState.emit(result)
+                    }
+
                 }
             }
 
@@ -155,6 +166,17 @@ class GameClient(
                 message = message
             )
         )
+        sendMessage(gameMessage)
+    }
+
+    suspend fun sendDrawingMessage(data: PathData){
+        val gameMessage = GameMessage.PlayerMessage(
+            playerEvent = PlayerEvent.Drawing(
+                player = playerState.value!!.player,
+                pathData = data
+            )
+        )
+        println("send pathData")
         sendMessage(gameMessage)
     }
 

@@ -20,14 +20,6 @@ sealed class GameMessage {
     @SerialName("server_message")
     data class ServerMessage(val serverStatus: ServerStatus) : GameMessage()
 
-    @Serializable
-    @SerialName("drawing")
-    data class Drawing(val event: DrawingEvent) : GameMessage()
-
-    @Serializable
-    @SerialName("guess")
-    data class Guess(val text: String) : GameMessage()
-
 }
 
 @Serializable

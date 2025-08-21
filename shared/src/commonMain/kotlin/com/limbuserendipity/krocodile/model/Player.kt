@@ -44,6 +44,13 @@ sealed class PlayerEvent {
         val message: String
     ) : PlayerEvent()
 
+    @Serializable
+    @SerialName("drawing")
+    data class Drawing(
+        val player: Player,
+        val pathData: PathData
+    ) : PlayerEvent()
+
 }
 
 @Serializable

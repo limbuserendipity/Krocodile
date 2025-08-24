@@ -87,7 +87,7 @@ fun KrocodileTheme(
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = LightColorScheme,
         content = content
     )
 }

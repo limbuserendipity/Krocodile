@@ -2,12 +2,12 @@ package com.limbuserendipity.krocodile.theme
 
 import androidx.compose.ui.graphics.Color
 
-val PrimaryLight = Color(0xFFFF6B35)
+val PrimaryLight = Color(0xFF3DAE8B)
 val OnPrimaryLight = Color(0xFFFFFFFF)
 val PrimaryContainerLight = Color(0xFFFFDBD1)
 val OnPrimaryContainerLight = Color(0xFF531000)
 
-val SecondaryLight = Color(0xFF3DAE8B)
+val SecondaryLight = Color(0xFFFF6B35)
 val OnSecondaryLight = Color(0xFFFFFFFF)
 val SecondaryContainerLight = Color(0xFFBFF5D9)
 val OnSecondaryContainerLight = Color(0xFF002113)
@@ -35,12 +35,12 @@ val OutlineVariantLight = Color(0xFFD3C3BC)
 val ScrimLight = Color(0xFF000000)
 
 // Dark theme
-val PrimaryDark = Color(0xFFFFB5A0)
+val PrimaryDark = Color(0xFFA3D8BD)
 val OnPrimaryDark = Color(0xFF531000)
 val PrimaryContainerDark = Color(0xFF77260C)
 val OnPrimaryContainerDark = Color(0xFFFFDBD1)
 
-val SecondaryDark = Color(0xFFA3D8BD)
+val SecondaryDark = Color(0xFFFFB5A0)
 val OnSecondaryDark = Color(0xFF003825)
 val SecondaryContainerDark = Color(0xFF217D62)
 val OnSecondaryContainerDark = Color(0xFFBFF5D9)

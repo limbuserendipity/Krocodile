@@ -1,6 +1,5 @@
 package com.limbuserendipity.krocodile.module
 
-import com.limbuserendipity.krocodile.vm.CreateRoomViewModel
 import com.limbuserendipity.krocodile.vm.LobbyViewModel
 import com.limbuserendipity.krocodile.vm.RoomViewModel
 import com.limbuserendipity.krocodile.vm.SigInViewModel
@@ -16,8 +15,6 @@ val viewModelModule = module {
     }
 
     viewModelOf(::LobbyViewModel)
-
-    viewModelOf(::CreateRoomViewModel)
 
     viewModelOf(::RoomViewModel)
 

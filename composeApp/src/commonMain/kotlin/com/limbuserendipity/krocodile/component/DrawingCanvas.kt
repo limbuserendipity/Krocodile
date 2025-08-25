@@ -1,13 +1,11 @@
 package com.limbuserendipity.krocodile.component
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -31,7 +29,6 @@ fun DrawingCanvas(
     Canvas(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Gray)
             .padding(paddingValues)
             .pointerInput(Unit) {
                 detectDragGestures(

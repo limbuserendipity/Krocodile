@@ -1,26 +1,24 @@
 package com.limbuserendipity.krocodile.model
 
-import java.util.Collections
-import java.util.LinkedHashSet
 import java.util.concurrent.ConcurrentHashMap
 
-sealed class Room{
+sealed class Room {
 
-    object Lobby{
-        val id : Long = 0
+    object Lobby {
+        val id: Long = 0
         val players = ConcurrentHashMap<String, Player>()
         val rooms = ConcurrentHashMap<Long, GameRoom>()
     }
 
     data class GameRoom(
-        val id : Long,
-        val title : String,
-        val players : ConcurrentHashMap<String,Player>,
-        val maxPlayers : Int,
-        var owner : Player,
-        var artist : Player,
-        var state : GameState,
-        var word : String,
-        val chat : MutableList<ChatMessageData>,
-    ): Room()
+        val id: Long,
+        val title: String,
+        val players: ConcurrentHashMap<String, Player>,
+        val maxPlayers: Int,
+        var owner: Player,
+        var artist: Player,
+        var state: GameState,
+        var word: String,
+        val chat: MutableList<ChatMessageData>,
+    ) : Room()
 }

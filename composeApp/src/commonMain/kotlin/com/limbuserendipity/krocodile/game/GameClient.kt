@@ -1,11 +1,6 @@
 package com.limbuserendipity.krocodile.game
 
-import com.limbuserendipity.krocodile.model.DrawState
-import com.limbuserendipity.krocodile.model.GameMessage
-import com.limbuserendipity.krocodile.model.PathData
-import com.limbuserendipity.krocodile.model.PlayerEvent
-import com.limbuserendipity.krocodile.model.ServerResult
-import com.limbuserendipity.krocodile.model.ServerStatus
+import com.limbuserendipity.krocodile.model.*
 import io.ktor.client.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.http.*
@@ -169,7 +164,7 @@ class GameClient(
         sendMessage(gameMessage)
     }
 
-    suspend fun sendDrawingMessage(data: PathData){
+    suspend fun sendDrawingMessage(data: PathData) {
         val gameMessage = GameMessage.PlayerMessage(
             playerEvent = PlayerEvent.Drawing(
                 player = playerState.value!!.player,

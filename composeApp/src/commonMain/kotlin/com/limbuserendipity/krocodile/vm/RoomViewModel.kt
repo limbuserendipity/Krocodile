@@ -9,15 +9,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.limbuserendipity.krocodile.game.GameClient
 import com.limbuserendipity.krocodile.model.ChatMessageData
-import com.limbuserendipity.krocodile.model.PathData
 import com.limbuserendipity.krocodile.model.DrawState
+import com.limbuserendipity.krocodile.model.PathData
 import com.limbuserendipity.krocodile.screen.RoomScreenState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlin.apply
 
 class RoomViewModel(
     val client: GameClient
@@ -31,10 +30,10 @@ class RoomViewModel(
     private val _chatMessage = MutableSharedFlow<List<ChatMessageData>>()
     val chatMessage = _chatMessage.asSharedFlow()
 
-    val currentPath : MutableStateFlow<Path> = MutableStateFlow(Path())
-    val completedPaths : MutableStateFlow<List<Path>> = MutableStateFlow(listOf())
+    val currentPath: MutableStateFlow<Path> = MutableStateFlow(Path())
+    val completedPaths: MutableStateFlow<List<Path>> = MutableStateFlow(listOf())
 
-    val userPaths : MutableStateFlow<Map<String, Path>> = MutableStateFlow(mapOf())
+    val userPaths: MutableStateFlow<Map<String, Path>> = MutableStateFlow(mapOf())
 
     init {
         observeWords()
@@ -51,7 +50,7 @@ class RoomViewModel(
         }
     }
 
-    fun observeRoomState(){
+    fun observeRoomState() {
         viewModelScope.launch {
             client.roomState.collect { roomState ->
                 roomState?.let {
@@ -64,7 +63,7 @@ class RoomViewModel(
     fun observePathData() {
         viewModelScope.launch {
             client.drawingState.collect { drawing ->
-                when(drawing.pathData.drawState){
+                when (drawing.pathData.drawState) {
                     DrawState.DrawStart -> {
                         val newPath = Path().apply {
                             moveTo(drawing.pathData.x, drawing.pathData.y)
@@ -73,6 +72,7 @@ class RoomViewModel(
                             this[drawing.playerId] = newPath
                         }
                     }
+
                     DrawState.Drawing -> {
                         val existingPath = userPaths.value[drawing.playerId]
                         if (existingPath != null) {
@@ -84,6 +84,7 @@ class RoomViewModel(
                             }
                         }
                     }
+
                     DrawState.DrawEnd -> {
                         val finishedPath = userPaths.value[drawing.playerId]
                         if (finishedPath != null) {
@@ -101,16 +102,18 @@ class RoomViewModel(
     }
 
     fun Path.fromPathData(
-        data : PathData,
-        onEndPath : () -> Unit = {}
-    ) : Path{
-        when(data.drawState){
+        data: PathData,
+        onEndPath: () -> Unit = {}
+    ): Path {
+        when (data.drawState) {
             DrawState.DrawStart -> {
-                this.moveTo(data.x,  data.y)
+                this.moveTo(data.x, data.y)
             }
+
             DrawState.Drawing -> {
                 this.lineTo(data.x, data.y)
             }
+
             DrawState.DrawEnd -> onEndPath()
         }
         return this
@@ -123,13 +126,13 @@ class RoomViewModel(
         }
     }
 
-    fun sendChatMessage(message : String){
+    fun sendChatMessage(message: String) {
         viewModelScope.launch {
             client.sendChatMessage(message)
         }
     }
 
-    fun onDragStart(offset : Offset){
+    fun onDragStart(offset: Offset) {
         currentPath.value = currentPath.value.copy().apply {
             moveTo(offset.x, offset.y)
         }
@@ -143,7 +146,8 @@ class RoomViewModel(
             )
         }
     }
-    fun onDrag(change : PointerInputChange, offset: Offset){
+
+    fun onDrag(change: PointerInputChange, offset: Offset) {
         currentPath.value = currentPath.value.copy().apply {
             lineTo(change.position.x, change.position.y)
         }

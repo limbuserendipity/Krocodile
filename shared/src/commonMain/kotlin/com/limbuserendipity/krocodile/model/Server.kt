@@ -21,7 +21,6 @@ sealed class ServerResult {
         val players: List<PlayerData>,
         var owner: PlayerData,
         var artist: PlayerData,
-        val gameState: GameState,
         val chat: List<ChatMessageData>
     ) : ServerResult()
 
@@ -66,4 +65,5 @@ data class RoomData(
     val roomId: Long,
     val playerCount: Int,
     val maxCount: Int,
+    val gameState: GameState,
 )

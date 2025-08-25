@@ -32,6 +32,7 @@ object GameServer {
             is GameMessage.PlayerMessage -> {
                 handlePlayerMessage(session, message)
             }
+
             is GameMessage.ServerMessage -> {}
         }
     }
@@ -156,6 +157,7 @@ object GameServer {
                     updateRoomState(room)
                 }
             }
+
             is PlayerEvent.Drawing -> {
                 println("drawing")
                 updateDrawing(event)
@@ -192,6 +194,7 @@ object GameServer {
                         roomId = room.id,
                         playerCount = room.players.count(),
                         maxCount = room.maxPlayers,
+                        gameState = room.state
                     ),
                     players = room.players.values.map { player ->
                         PlayerData(
@@ -211,7 +214,6 @@ object GameServer {
                             name = player.name
                         )
                     },
-                    gameState = room.state,
                     chat = room.chat
                 )
             )
@@ -279,7 +281,7 @@ object GameServer {
         )
         room?.players?.values?.forEach { player ->
             println("room player: ${player.name}")
-            if(player.id != event.player.id){
+            if (player.id != event.player.id) {
                 sendMessage(
                     session = connections[player.id]!!,
                     message = gameMessage
@@ -309,7 +311,8 @@ fun currentLobbyState(): ServerResult.LobbyState {
                 title = room.title,
                 roomId = room.id,
                 playerCount = room.players.count(),
-                maxCount = room.maxPlayers
+                maxCount = room.maxPlayers,
+                gameState = room.state
             )
         }
     )

@@ -13,19 +13,36 @@ class LobbyViewModel(
 ) : ViewModel() {
 
     val lobbyState = client.lobbyState
-    val roomState = client.roomState
+    val playerState = client.playerState
+
     private val _screenState = MutableStateFlow<ScreenState>(ScreenState.Loading)
     val screenState: StateFlow<ScreenState> = _screenState
 
-    fun observeRoomState() {
+    init {
+        observeRoomState()
+    }
+
+    private fun observeRoomState() {
         viewModelScope.launch {
-            client.roomState.collect { room ->
-                if (room != null) {
-                    if (client.playerState.value?.player?.roomId == room.roomData.roomId) {
+            client.roomState.collect { state ->
+                if (state != null && playerState.value != null) {
+                    if (playerState.value!!.player.id == state.owner.id) {
                         _screenState.emit(ScreenState.Success)
                     }
                 }
             }
+        }
+    }
+
+    fun createRoom(
+        title: String,
+        maxPlayers: Int
+    ) {
+        viewModelScope.launch {
+            client.sendCreateRoomMessage(
+                title = title,
+                maxPlayers = maxPlayers
+            )
         }
     }
 

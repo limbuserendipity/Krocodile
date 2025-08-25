@@ -2,16 +2,15 @@ package com.limbuserendipity.krocodile.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import com.limbuserendipity.krocodile.component.Chat
@@ -52,13 +51,13 @@ class RoomScreen : Screen {
             Scaffold(
                 topBar = {
                     roomState.value?.let {
-                        Row(){
+                        Row() {
                             Text(text = it.roomData.title)
                             8.dp.Space()
                             Text(text = it.players.count().toString())
                             8.dp.Space()
                             Text(
-                                text = if (it.gameState == GameState.Wait) {
+                                text = if (it.roomData.gameState == GameState.Wait) {
                                     "Wait"
                                 } else {
                                     "Run"
@@ -68,13 +67,15 @@ class RoomScreen : Screen {
                     }
                 },
                 bottomBar = {
-                    Chat(messages = chat.value)
+                    BottomAppBar() {
+                        Chat(messages = chat.value)
 
-                    ChatInput(
-                        onSendClick = { message ->
-                            viewModel.sendChatMessage(message)
-                        }
-                    )
+                        ChatInput(
+                            onSendClick = { message ->
+                                viewModel.sendChatMessage(message)
+                            }
+                        )
+                    }
                 }
             ) { paddingValues ->
                 DrawingCanvas(
@@ -87,19 +88,17 @@ class RoomScreen : Screen {
                     onDragEnd = viewModel::onDragEnd
                 )
             }
-
-            if (showDialog) {
-                println("showDialog")
-                WordsDialog(
-                    words = words.value,
-                    onWordClick = { word ->
-                        showDialog = false
-                        viewModel.sendWordMessage(word)
-                    }
-                )
-            }
         }
-
+        if (showDialog) {
+            println("showDialog")
+            WordsDialog(
+                words = words.value,
+                onWordClick = { word ->
+                    showDialog = false
+                    viewModel.sendWordMessage(word)
+                }
+            )
+        }
         LaunchedEffect(state.value) {
             when (state.value) {
                 is RoomScreenState.Success -> {

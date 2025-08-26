@@ -17,6 +17,7 @@ import com.limbuserendipity.krocodile.util.Space
 
 @Composable
 fun ChatInput(
+    modifier: Modifier = Modifier,
     onSendClick : (String) -> Unit
 ){
 
@@ -26,7 +27,8 @@ fun ChatInput(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
     ){
         OutlinedTextField(
             value = message,
@@ -49,5 +51,4 @@ fun ChatInput(
             )
         }
     }
-
 }

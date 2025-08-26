@@ -2,20 +2,20 @@ package com.limbuserendipity.krocodile.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
-import com.limbuserendipity.krocodile.component.Chat
-import com.limbuserendipity.krocodile.component.ChatInput
+import com.limbuserendipity.krocodile.component.ChatSection
 import com.limbuserendipity.krocodile.component.DrawingCanvas
+import com.limbuserendipity.krocodile.component.GameRoomHeader
+import com.limbuserendipity.krocodile.component.InputSection
 import com.limbuserendipity.krocodile.model.GameState
 import com.limbuserendipity.krocodile.util.Space
 import com.limbuserendipity.krocodile.vm.RoomViewModel
@@ -43,52 +43,60 @@ class RoomScreen : Screen {
         val completedPaths = viewModel.completedPaths.collectAsState()
         val usersPath = viewModel.userPaths.collectAsState()
 
-
         Box(
-            contentAlignment = Alignment.Center
+
         ) {
 
-            Scaffold(
-                topBar = {
-                    roomState.value?.let {
-                        Row() {
-                            Text(text = it.roomData.title)
-                            8.dp.Space()
-                            Text(text = it.players.count().toString())
-                            8.dp.Space()
-                            Text(
-                                text = if (it.roomData.gameState == GameState.Wait) {
-                                    "Wait"
-                                } else {
-                                    "Run"
-                                }
-                            )
-                        }
-                    }
-                },
-                bottomBar = {
-                    BottomAppBar() {
-                        Chat(messages = chat.value)
+            Column(
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            ) {
 
-                        ChatInput(
-                            onSendClick = { message ->
-                                viewModel.sendChatMessage(message)
-                            }
-                        )
-                    }
-                }
-            ) { paddingValues ->
+                GameRoomHeader(
+                    roomName = roomState.value!!.roomData.title,
+                    playerCount = roomState.value!!.roomData.playerCount,
+                    maxPlayers = roomState.value!!.roomData.maxCount,
+                    gameStatus = when (roomState.value!!.roomData.gameState) {
+                        GameState.Run -> "Идет"
+                        GameState.Wait -> "Ожидание"
+                    },
+                    onShowSettings = {
+
+                    },
+                    onStartGame = {
+
+                    },
+                    canStart = roomState.value!!.roomData.gameState == GameState.Run,
+                )
+
                 DrawingCanvas(
-                    paddingValues = paddingValues,
+                    paddingValues = PaddingValues(24.dp),
                     currentPath = currentPath.value,
                     completedPaths = completedPaths.value,
                     usersPath = usersPath.value.values.toList(),
                     onDragStart = viewModel::onDragStart,
                     onDrag = viewModel::onDrag,
-                    onDragEnd = viewModel::onDragEnd
+                    onDragEnd = viewModel::onDragEnd,
+                    modifier = Modifier.weight(1f)
                 )
+
+                InputSection() { message ->
+                    viewModel.sendChatMessage(message)
+                }
             }
+
+            ChatSection(
+                messages = chat.value,
+                modifier = Modifier.align(Alignment.BottomStart)
+            )
+
         }
+
+
+
         if (showDialog) {
             println("showDialog")
             WordsDialog(
@@ -116,8 +124,6 @@ class RoomScreen : Screen {
                 }
             }
         }
-
-
     }
 
     @Composable

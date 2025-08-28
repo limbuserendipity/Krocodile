@@ -20,5 +20,6 @@ sealed class Room {
         var state: GameState,
         var word: String,
         val chat: MutableList<ChatMessageData>,
+        var round : Int
     ) : Room()
 }

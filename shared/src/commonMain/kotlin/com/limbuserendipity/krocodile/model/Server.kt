@@ -21,7 +21,8 @@ sealed class ServerResult {
         val players: List<PlayerData>,
         var owner: PlayerData,
         var artist: PlayerData,
-        val chat: List<ChatMessageData>
+        val chat: List<ChatMessageData>,
+        val round : Int
     ) : ServerResult()
 
     @Serializable
@@ -42,6 +43,7 @@ sealed class ServerResult {
         val playerId: String,
         val pathData: PathData
     ) : ServerResult()
+
 
 }
 

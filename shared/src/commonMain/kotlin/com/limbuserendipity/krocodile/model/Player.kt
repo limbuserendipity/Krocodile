@@ -31,6 +31,12 @@ sealed class PlayerEvent {
     ) : PlayerEvent()
 
     @Serializable
+    @SerialName("start_game")
+    data class StartGame(
+        val player: Player
+    ) : PlayerEvent()
+
+    @Serializable
     @SerialName("word")
     data class Word(
         val player : Player,

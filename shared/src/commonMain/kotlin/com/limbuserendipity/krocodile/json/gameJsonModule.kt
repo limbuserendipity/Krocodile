@@ -34,6 +34,7 @@ val gameJsonModule = SerializersModule {
         subclass(PlayerEvent.NewRoom::class)
         subclass(PlayerEvent.LeaveRoom::class)
         subclass(PlayerEvent.EnterToRoom::class)
+        subclass(PlayerEvent.StartGame::class)
         subclass(PlayerEvent.Word::class)
         subclass(PlayerEvent.ChatMessage::class)
         subclass(PlayerEvent.Drawing::class)
@@ -41,6 +42,7 @@ val gameJsonModule = SerializersModule {
 
     polymorphic(GameState::class) {
         subclass(GameState.Wait::class)
+        subclass(GameState.Starting::class)
         subclass(GameState.Run::class)
     }
 

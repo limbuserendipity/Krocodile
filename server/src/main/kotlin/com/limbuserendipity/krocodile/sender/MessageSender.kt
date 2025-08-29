@@ -50,7 +50,7 @@ class MessageSender(
         connectionManager.sendToPlayer(player.id, gameMessage, json)
     }
 
-    suspend fun sendPlayerStateToRoom(room: Room.GameRoom){
+    suspend fun sendPlayerStateToRoom(room: Room.GameRoom) {
         room.players.values.forEach { player ->
             val gameMessage = GameMessage.ServerMessage(
                 serverStatus = ServerStatus.Success(

@@ -14,7 +14,6 @@ class SigInScreen() : Screen {
     override fun Content() {
         val viewModel: SigInViewModel = koinViewModel()
         val navigator = LocalNavigator.currentOrThrow
-        val signState = viewModel.screenState.collectAsState()
 
         var ipAddress by remember {
             mutableStateOf("")
@@ -38,26 +37,34 @@ class SigInScreen() : Screen {
                 }
             }
         )
-        
-        LaunchedEffect(signState.value) {
-            when (signState.value) {
-                is ScreenState.Success -> {
-                    navigator.push(LobbyScreen())
-                }
 
-                is ScreenState.Failed -> {
-                    println("Sign in failed: ${(signState.value as ScreenState.Failed).error}")
-                }
+        LaunchedEffect(viewModel.uiEvent) {
+            viewModel.uiEvent.collect { event ->
+                when (event) {
+                    is UiEvent.NavigateToGame -> {
 
-                is ScreenState.Loading -> {
+                    }
+
+                    is UiEvent.NavigateToLobby -> {
+                        navigator.push(LobbyScreen())
+                    }
+
+                    is UiEvent.ShowError -> {
+
+                    }
+
+                    is UiEvent.ShowMessage -> {
+
+                    }
                 }
             }
         }
     }
 }
 
-sealed class ScreenState {
-    object Loading : ScreenState()
-    object Success : ScreenState()
-    data class Failed(val error: String) : ScreenState()
+sealed class UiEvent {
+    data class ShowError(val message: String) : UiEvent()
+    data class ShowMessage(val message: String) : UiEvent()
+    object NavigateToGame : UiEvent()
+    object NavigateToLobby : UiEvent()
 }

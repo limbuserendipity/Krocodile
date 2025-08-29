@@ -2,34 +2,39 @@ package com.limbuserendipity.krocodile.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.limbuserendipity.krocodile.game.GameClient
-import com.limbuserendipity.krocodile.screen.ScreenState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.limbuserendipity.krocodile.client.GameClient
+import com.limbuserendipity.krocodile.screen.LobbyUiState
+import com.limbuserendipity.krocodile.screen.UiEvent
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class LobbyViewModel(
     val client: GameClient
 ) : ViewModel() {
 
-    val lobbyState = client.lobbyState
-    val playerState = client.playerState
 
-    private val _screenState = MutableStateFlow<ScreenState>(ScreenState.Loading)
-    val screenState: StateFlow<ScreenState> = _screenState
+    private val _uiState = MutableStateFlow<LobbyUiState>(LobbyUiState())
+    val uiState = _uiState.asStateFlow()
+    private val _uiEvent = MutableSharedFlow<UiEvent>()
+    val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
     init {
-        observeRoomState()
+        observeClientState()
     }
 
-    private fun observeRoomState() {
+    private fun observeClientState() {
         viewModelScope.launch {
-            client.roomState.collect { state ->
-                if (state != null && playerState.value != null) {
-                    if (playerState.value!!.player.id == state.owner.id) {
-                        _screenState.emit(ScreenState.Success)
-                    }
+            client.state.collect { state ->
+
+                if(state.currentRoom != null){
+                    _uiEvent.emit(UiEvent.NavigateToGame)
                 }
+
+                _uiState.emit(
+                    LobbyUiState(
+                        rooms = state.lobbyRooms
+                    )
+                )
             }
         }
     }
@@ -39,16 +44,13 @@ class LobbyViewModel(
         maxPlayers: Int
     ) {
         viewModelScope.launch {
-            client.sendCreateRoomMessage(
-                title = title,
-                maxPlayers = maxPlayers
-            )
+            client.createRoom(title, maxPlayers)
         }
     }
 
     fun enterToRoom(roomId: Long) {
         viewModelScope.launch {
-            client.sendEnterToRoomMessage(roomId = roomId)
+            client.joinRoom(roomId)
         }
     }
 

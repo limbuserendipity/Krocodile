@@ -33,8 +33,8 @@ import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun InputSection(
-    onSendMessage : (String) -> Unit
-){
+    onSendMessage: (String) -> Unit
+) {
 
     var input by remember {
         mutableStateOf("")
@@ -67,7 +67,10 @@ fun InputSection(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Button(
-            onClick = { if (input.isNotBlank()) onSendMessage(input) },
+            onClick = {
+                if (input.isNotBlank()) onSendMessage(input)
+                input = ""
+            },
             enabled = input.isNotBlank(),
             shape = RoundedCornerShape(12.dp),
             contentPadding = PaddingValues(0.dp),

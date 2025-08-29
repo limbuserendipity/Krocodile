@@ -51,6 +51,7 @@ fun RoomCard(room: RoomData, onJoin: () -> Unit) {
                         text = when (room.gameState) {
                             GameState.Run -> "Идет"
                             GameState.Wait -> "Ожидание"
+                            GameState.Starting -> "Подготовка"
                         },
                         color = Color.White,
                         fontSize = 12.sp,

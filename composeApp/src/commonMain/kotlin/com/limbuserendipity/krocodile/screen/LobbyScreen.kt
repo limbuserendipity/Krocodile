@@ -18,6 +18,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.limbuserendipity.krocodile.component.CreateRoomSurface
 import com.limbuserendipity.krocodile.component.LobbyHeader
 import com.limbuserendipity.krocodile.component.RoomCard
+import com.limbuserendipity.krocodile.model.RoomData
 import com.limbuserendipity.krocodile.vm.LobbyViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -27,11 +28,10 @@ class LobbyScreen() : Screen {
     @Composable
     override fun Content() {
         val viewModel: LobbyViewModel = koinViewModel()
-        val lobbyState = viewModel.lobbyState.collectAsState()
-
-        val screenState = viewModel.screenState.collectAsState()
 
         val navigator = LocalNavigator.currentOrThrow
+
+        val state = viewModel.uiState.collectAsState()
 
         var showDialog by remember {
             mutableStateOf(false)
@@ -52,12 +52,31 @@ class LobbyScreen() : Screen {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.weight(1f).padding(top = 8.dp)
             ) {
-                lobbyState.value?.let { state ->
-                    items(state.rooms) { room ->
-                        RoomCard(room = room, onJoin = {
-                            viewModel.enterToRoom(room.roomId)
-                            navigator.push(RoomScreen())
-                        })
+                items(state.value.rooms) { room ->
+                    RoomCard(room = room, onJoin = {
+                        viewModel.enterToRoom(room.roomId)
+                    })
+                }
+            }
+        }
+
+        LaunchedEffect(viewModel.uiEvent) {
+            viewModel.uiEvent.collect { event ->
+                when (event) {
+                    is UiEvent.NavigateToGame -> {
+                        navigator.push(RoomScreen())
+                    }
+
+                    is UiEvent.NavigateToLobby -> {
+
+                    }
+
+                    is UiEvent.ShowError -> {
+
+                    }
+
+                    is UiEvent.ShowMessage -> {
+
                     }
                 }
             }
@@ -82,20 +101,9 @@ class LobbyScreen() : Screen {
                 )
             }
         }
-
-        LaunchedEffect(screenState.value) {
-            when (screenState.value) {
-                is ScreenState.Success -> {
-                    navigator.push(RoomScreen())
-                }
-
-                is ScreenState.Failed -> {
-                    println("Sign in failed: ${(screenState.value as ScreenState.Failed).error}")
-                }
-
-                is ScreenState.Loading -> {
-                }
-            }
-        }
     }
 }
+
+data class LobbyUiState(
+    val rooms: List<RoomData> = emptyList(),
+)

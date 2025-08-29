@@ -31,6 +31,7 @@ class WebSocketHandler(
             is PlayerEvent.NewPlayer -> {
                 val player = playerService.registerPlayer(event.name)
                 connectionManager.addSession(player.id, session)
+                Room.Lobby.players[player.id] = player
                 messageSender.sendPlayerState(player)
             }
 
@@ -42,6 +43,7 @@ class WebSocketHandler(
                 Room.Lobby.players.remove(player.id)
                 messageSender.sendRoomState(room)
                 messageSender.sendPlayerState(player)
+                messageSender.sendLobbyState(Room.Lobby.players)
             }
 
             is PlayerEvent.LeaveRoom -> {
@@ -73,7 +75,7 @@ class WebSocketHandler(
                 val artist = gameService.startRound(room)
 
                 messageSender.sendPlayerStateToRoom(room)
-                messageSender.sendWords(artist, listOf("Player, Server, Shared"))
+                messageSender.sendWords(artist, listOf("Player", "Server", "Shared"))
                 messageSender.sendRoomState(room)
             }
 
@@ -82,6 +84,7 @@ class WebSocketHandler(
                 room.word = event.word
                 room.state = GameState.Run
                 messageSender.sendRoomState(room)
+                messageSender.sendWords(room.artist, listOf())
             }
 
             is PlayerEvent.ChatMessage -> {

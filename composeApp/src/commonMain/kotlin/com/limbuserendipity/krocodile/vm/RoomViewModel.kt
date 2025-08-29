@@ -7,28 +7,23 @@ import androidx.compose.ui.graphics.copy
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.limbuserendipity.krocodile.game.GameClient
-import com.limbuserendipity.krocodile.model.ChatMessageData
+import com.limbuserendipity.krocodile.client.GameClient
 import com.limbuserendipity.krocodile.model.DrawState
 import com.limbuserendipity.krocodile.model.PathData
-import com.limbuserendipity.krocodile.screen.RoomScreenState
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.limbuserendipity.krocodile.screen.RoomUiState
+import com.limbuserendipity.krocodile.screen.UiEvent
+import com.limbuserendipity.krocodile.screen.roomUiStatePlaceHolder
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class RoomViewModel(
     val client: GameClient
 ) : ViewModel() {
 
-    val roomState = client.roomState
-    val ws = client.words
-    private val _screenState: MutableStateFlow<RoomScreenState> = MutableStateFlow(RoomScreenState.Loading)
-    val screenState = _screenState.asStateFlow()
-
-    private val _chatMessage = MutableSharedFlow<List<ChatMessageData>>()
-    val chatMessage = _chatMessage.asSharedFlow()
+    private val _uiState = MutableStateFlow(roomUiStatePlaceHolder())
+    val uiState = _uiState.asStateFlow()
+    private val _uiEvent = MutableSharedFlow<UiEvent>()
+    val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
     val currentPath: MutableStateFlow<Path> = MutableStateFlow(Path())
     val completedPaths: MutableStateFlow<List<Path>> = MutableStateFlow(listOf())
@@ -36,65 +31,68 @@ class RoomViewModel(
     val userPaths: MutableStateFlow<Map<String, Path>> = MutableStateFlow(mapOf())
 
     init {
-        observeWords()
-        observeRoomState()
+        observeClientState()
+
         observePathData()
     }
 
-    fun observeWords() {
+    fun observeClientState() {
         viewModelScope.launch {
-            client.words.collect { words ->
-                println("observeWords")
-                _screenState.emit(RoomScreenState.Success(words))
-            }
-        }
-    }
-
-    fun observeRoomState() {
-        viewModelScope.launch {
-            client.roomState.collect { roomState ->
-                roomState?.let {
-                    _chatMessage.emit(it.chat)
-                }
+            client.state.collect { state ->
+                _uiState.emit(
+                    RoomUiState(
+                        roomData = state.currentRoom!!,
+                        players = state.roomPlayers,
+                        owner = state.owner!!,
+                        artist = state.artist!!,
+                        chat = state.chatMessages,
+                        availableWords = state.availableWords,
+                        round = state.round
+                    )
+                )
             }
         }
     }
 
     fun observePathData() {
         viewModelScope.launch {
-            client.drawingState.collect { drawing ->
-                when (drawing.pathData.drawState) {
+            client.state.collect { state ->
+                when (state.pathData?.drawState) {
                     DrawState.DrawStart -> {
                         val newPath = Path().apply {
-                            moveTo(drawing.pathData.x, drawing.pathData.y)
+                            moveTo(state.pathData.x, state.pathData.y)
                         }
                         userPaths.value = userPaths.value.toMutableMap().apply {
-                            this[drawing.playerId] = newPath
+                            this[state.pathData.drawerId] = newPath
                         }
                     }
 
                     DrawState.Drawing -> {
-                        val existingPath = userPaths.value[drawing.playerId]
+                        val existingPath = userPaths.value[state.pathData.drawerId]
                         if (existingPath != null) {
                             val updatedPath = existingPath.copy().apply {
-                                lineTo(drawing.pathData.x, drawing.pathData.y)
+                                lineTo(state.pathData.x, state.pathData.y)
                             }
                             userPaths.value = userPaths.value.toMutableMap().apply {
-                                this[drawing.playerId] = updatedPath
+                                this[state.pathData.drawerId] = updatedPath
                             }
                         }
                     }
 
                     DrawState.DrawEnd -> {
-                        val finishedPath = userPaths.value[drawing.playerId]
+                        val finishedPath = userPaths.value[state.pathData.drawerId]
                         if (finishedPath != null) {
                             completedPaths.value = completedPaths.value.toMutableList().apply {
                                 add(finishedPath)
                             }
                         }
                         userPaths.value = userPaths.value.toMutableMap().apply {
-                            remove(drawing.playerId)
+                            remove(state.pathData.drawerId)
                         }
+                    }
+
+                    null -> {
+
                     }
                 }
             }
@@ -119,16 +117,21 @@ class RoomViewModel(
         return this
     }
 
+    fun startGame() {
+        viewModelScope.launch {
+            client.startGame()
+        }
+    }
+
     fun sendWordMessage(word: String) {
         viewModelScope.launch {
-            client.sendWordMessage(word)
-            _screenState.emit(RoomScreenState.Loading)
+            client.selectWord(word)
         }
     }
 
     fun sendChatMessage(message: String) {
         viewModelScope.launch {
-            client.sendChatMessage(message)
+            client.sendMessage(message)
         }
     }
 
@@ -136,14 +139,9 @@ class RoomViewModel(
         currentPath.value = currentPath.value.copy().apply {
             moveTo(offset.x, offset.y)
         }
+
         viewModelScope.launch {
-            client.sendDrawingMessage(
-                data = PathData(
-                    x = offset.x,
-                    y = offset.y,
-                    drawState = DrawState.DrawStart
-                )
-            )
+            client.sendDrawing(offset.x, offset.y, DrawState.DrawStart, 0xFF000000)
         }
     }
 
@@ -152,13 +150,7 @@ class RoomViewModel(
             lineTo(change.position.x, change.position.y)
         }
         viewModelScope.launch {
-            client.sendDrawingMessage(
-                data = PathData(
-                    x = change.position.x,
-                    y = change.position.y,
-                    drawState = DrawState.Drawing
-                )
-            )
+            client.sendDrawing(change.position.x, change.position.y, DrawState.Drawing, 0xFF000000)
         }
     }
 
@@ -168,13 +160,7 @@ class RoomViewModel(
         }
         currentPath.value = Path()
         viewModelScope.launch {
-            client.sendDrawingMessage(
-                data = PathData(
-                    x = 0f,
-                    y = 0f,
-                    drawState = DrawState.DrawEnd
-                )
-            )
+            client.sendDrawing(0f, 0f, DrawState.DrawEnd, 0xFF000000)
         }
     }
 

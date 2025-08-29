@@ -28,6 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.Res
 import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.baseline_add_24
+import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.play_circle
+import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.settings
+import com.limbuserendipity.krocodile.model.GameState
 import com.limbuserendipity.krocodile.util.Space
 import org.jetbrains.compose.resources.painterResource
 
@@ -36,7 +39,7 @@ fun GameRoomHeader(
     roomName: String,
     playerCount: Int,
     maxPlayers: Int,
-    gameStatus: String,
+    gameStatus: GameState,
     onShowSettings: () -> Unit,
     onStartGame: () -> Unit,
     canStart: Boolean,
@@ -80,14 +83,18 @@ fun GameRoomHeader(
                         Box(
                             modifier = Modifier
                                 .background(
-                                    if (gameStatus == "Идет игра") Color(0xFFFF6B35) else MaterialTheme.colorScheme.surfaceVariant,
+                                    if (gameStatus == GameState.Run) Color(0xFFFF6B35) else MaterialTheme.colorScheme.surfaceVariant,
                                     RoundedCornerShape(12.dp)
                                 )
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = gameStatus,
-                                color = if (gameStatus == "Идет игра") Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                                text = when(gameStatus){
+                                    GameState.Run -> "Идет"
+                                    GameState.Wait -> "Ожидание"
+                                    GameState.Starting -> "Подготовка"
+                                },
+                                color = if (gameStatus == GameState.Run) Color.White else MaterialTheme.colorScheme.onSurface,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Medium
                             )
@@ -99,24 +106,24 @@ fun GameRoomHeader(
             Row {
                 IconButton(onClick = onShowSettings) {
                     Icon(
-                        painter = painterResource(Res.drawable.baseline_add_24),
+                        painter = painterResource(Res.drawable.settings),
                         contentDescription = "Settings"
                     )
                 }
-                if (gameStatus == "Ожидание старта") {
+                if (gameStatus == GameState.Wait) {
                     Button(
                         onClick = onStartGame,
                         enabled = canStart,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
-                            disabledContainerColor = MaterialTheme.colorScheme.onBackground
+                            disabledContainerColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ),
                         shape = RoundedCornerShape(12.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                         modifier = Modifier.height(40.dp)
                     ) {
                         Icon(
-                            painter = painterResource(Res.drawable.baseline_add_24),
+                            painter = painterResource(Res.drawable.play_circle),
                             contentDescription = "Settings"
                         )
                         6.dp.Space()

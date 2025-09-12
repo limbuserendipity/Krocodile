@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin.Companion.Round
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -25,14 +24,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.Res
 import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.baseline_arrow_back_ios_24
+import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.pen
+import com.limbuserendipity.krocodile.theme.CanvasSurface
+import com.limbuserendipity.krocodile.vm.PathInfo
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun DrawingCanvas(
     paddingValues: PaddingValues,
-    currentPath: Path,
-    completedPaths: List<Path>,
-    usersPath: List<Path>,
+    currentPath: PathInfo,
+    completedPaths: List<PathInfo>,
+    usersPath: List<PathInfo>,
     onDragStart: (Offset) -> Unit,
     onDrag: (PointerInputChange, Offset) -> Unit,
     onDragEnd: () -> Unit,
@@ -51,13 +53,13 @@ fun DrawingCanvas(
                 .fillMaxSize()
                 .height(256.dp)
                 .border(2.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-                .background(Color(0xFFF8F8F8)),
+                .background(CanvasSurface),
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                if (currentPath.isEmpty && completedPaths.isEmpty() && usersPath.isEmpty()) {
+                if (currentPath.path.isEmpty && completedPaths.isEmpty() && usersPath.isEmpty()) {
                     Icon(
-                        painter = painterResource(Res.drawable.baseline_arrow_back_ios_24),
+                        painter = painterResource(Res.drawable.pen),
                         contentDescription = ""
                     )
                     Text(
@@ -79,34 +81,34 @@ fun DrawingCanvas(
                     }
             ) {
 
-                drawPath(
-                    path = currentPath,
-                    color = Color.Blue,
-                    style = Stroke(
-                        width = 8f,
-                        cap = StrokeCap.Round,
-                        join = Round
-                    )
-                )
-
-                completedPaths.forEach { path ->
+                completedPaths.forEach { pathInfo ->
                     drawPath(
-                        path = path,
-                        color = Color.Red,
+                        path = pathInfo.path,
+                        color = pathInfo.color,
                         style = Stroke(
-                            width = 8f,
+                            width = pathInfo.size.toFloat(),
                             cap = StrokeCap.Round,
                             join = Round
                         )
                     )
                 }
 
-                usersPath.forEach { path ->
+                drawPath(
+                    path = currentPath.path,
+                    color = currentPath.color,
+                    style = Stroke(
+                        width = currentPath.size.toFloat(),
+                        cap = StrokeCap.Round,
+                        join = Round
+                    )
+                )
+
+                usersPath.forEach { pathInfo ->
                     drawPath(
-                        path = path,
-                        color = Color.Green,
+                        path = pathInfo.path,
+                        color = pathInfo.color,
                         style = Stroke(
-                            width = 8f,
+                            width = pathInfo.size.toFloat(),
                             cap = StrokeCap.Round,
                             join = Round
                         )

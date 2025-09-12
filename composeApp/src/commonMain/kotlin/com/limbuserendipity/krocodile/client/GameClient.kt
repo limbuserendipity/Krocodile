@@ -7,6 +7,7 @@ import com.limbuserendipity.krocodile.client.state.ClientState
 import com.limbuserendipity.krocodile.client.state.ConnectionStatus
 import com.limbuserendipity.krocodile.client.state.StateManager
 import com.limbuserendipity.krocodile.model.DrawState
+import com.limbuserendipity.krocodile.model.DrawingEvent
 import io.ktor.client.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -66,8 +67,8 @@ class GameClient(
         return messageService.sendChatMessage(message)
     }
 
-    suspend fun sendDrawing(x: Float, y: Float, drawState: DrawState, color: Long): Result<Unit> {
-        return messageService.sendDrawingMessage(x, y, drawState, color)
+    suspend fun sendDrawing(drawingEvent: DrawingEvent): Result<Unit> {
+        return messageService.sendDrawingMessage(drawingEvent)
     }
 
 

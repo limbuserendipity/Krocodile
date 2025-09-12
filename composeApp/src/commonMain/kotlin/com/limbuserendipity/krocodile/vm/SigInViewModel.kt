@@ -19,7 +19,6 @@ class SigInViewModel(
 
 
     init {
-        connectToServer()
         observeClientState()
     }
 
@@ -40,6 +39,9 @@ class SigInViewModel(
     }
 
     fun sign(username: String) {
+
+        connectToServer()
+
         viewModelScope.launch {
             client.createPlayer(username)
         }

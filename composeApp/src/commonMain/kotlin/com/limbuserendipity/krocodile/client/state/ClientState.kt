@@ -14,7 +14,7 @@ data class ClientState(
     val owner: PlayerData? = null,
     val artist: PlayerData? = null,
     val round: Int = 0,
-    val pathData: PathData? = null
+    val drawingEvent: DrawingEvent? = null
 )
 
 enum class ConnectionStatus {

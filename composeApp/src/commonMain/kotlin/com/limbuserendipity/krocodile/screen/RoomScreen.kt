@@ -72,9 +72,13 @@ class RoomScreen : Screen {
                     modifier = Modifier.weight(1f)
                 )
 
-                InputSection() { message ->
-                    viewModel.sendChatMessage(message)
-                }
+                InputSection(
+                    isArtist = true,
+                    onSendMessage = viewModel::sendChatMessage,
+                    onColorSelected = viewModel::onColorSelected,
+                    onToolSelected = viewModel::onToolSelected,
+                    onBrushSizeChanged = viewModel::onBrushSizeChanged
+                )
             }
 
             ChatSection(
@@ -158,16 +162,19 @@ class RoomScreen : Screen {
 }
 
 data class RoomUiState(
+    val player : Player,
     val roomData: RoomData,
     val players: List<PlayerData>,
     var owner: PlayerData,
     var artist: PlayerData,
+    var isArtist : Boolean,
     val chat: List<ChatMessageData>,
     val availableWords: List<String>,
     val round: Int = 0
 )
 
 fun roomUiStatePlaceHolder() = RoomUiState(
+    player = playerPlaceHolder(),
     roomData = RoomData(
         title = "Loading...",
         roomId = 404,
@@ -178,6 +185,7 @@ fun roomUiStatePlaceHolder() = RoomUiState(
     players = emptyList(),
     owner = playerDataPlaceHolder(),
     artist = playerDataPlaceHolder(),
+    isArtist = false,
     chat = emptyList(),
     availableWords = emptyList(),
     round = 0

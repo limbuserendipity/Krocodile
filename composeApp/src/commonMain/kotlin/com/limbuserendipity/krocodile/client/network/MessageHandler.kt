@@ -53,7 +53,7 @@ class MessageHandler(
                     }
 
                     is ServerResult.DrawingState -> {
-                        stateManager.updateDrawingPath(data.pathData)
+                        stateManager.updateDrawingEvent(drawingEvent = data.drawingEvent)
                     }
                 }
             }

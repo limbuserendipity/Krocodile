@@ -1,11 +1,13 @@
 package com.limbuserendipity.krocodile.json
 
 import com.limbuserendipity.krocodile.model.DrawState
+import com.limbuserendipity.krocodile.model.DrawingEvent
 import com.limbuserendipity.krocodile.model.GameMessage
 import com.limbuserendipity.krocodile.model.GameState
 import com.limbuserendipity.krocodile.model.PlayerEvent
 import com.limbuserendipity.krocodile.model.ServerResult
 import com.limbuserendipity.krocodile.model.ServerStatus
+import com.limbuserendipity.krocodile.model.ToolType
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
@@ -50,6 +52,17 @@ val gameJsonModule = SerializersModule {
         subclass(DrawState.DrawStart::class)
         subclass(DrawState.Drawing::class)
         subclass(DrawState.DrawEnd::class)
+    }
+
+    polymorphic(DrawingEvent::class) {
+        subclass(DrawingEvent.DrawPath::class)
+        subclass(DrawingEvent.ToolSelect::class)
+    }
+
+    polymorphic(ToolType::class) {
+        subclass(ToolType.Eraser::class)
+        subclass(ToolType.Undo::class)
+        subclass(ToolType.Clear::class)
     }
 
 }

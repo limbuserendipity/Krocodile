@@ -3,6 +3,7 @@ package com.limbuserendipity.krocodile.client.service
 import com.limbuserendipity.krocodile.client.network.WebSocketClient
 import com.limbuserendipity.krocodile.client.state.StateManager
 import com.limbuserendipity.krocodile.model.DrawState
+import com.limbuserendipity.krocodile.model.DrawingEvent
 import com.limbuserendipity.krocodile.model.GameMessage
 import com.limbuserendipity.krocodile.model.PathData
 import com.limbuserendipity.krocodile.model.PlayerEvent
@@ -74,18 +75,12 @@ class MessageService(
         return webSocketClient.sendMessage(gameMessage)
     }
 
-    suspend fun sendDrawingMessage(x: Float, y: Float, drawState: DrawState, color: Long): Result<Unit> {
+    suspend fun sendDrawingMessage(drawingEvent: DrawingEvent): Result<Unit> {
         val player = stateManager.state.value.player ?: return Result.failure(IllegalStateException("No player"))
         val message = GameMessage.PlayerMessage(
             playerEvent = PlayerEvent.Drawing(
                 player = player,
-                pathData = PathData(
-                    x = x,
-                    y = y,
-                    drawState = drawState,
-                    drawerId = player.id,
-                    color = color
-                )
+                drawingEvent = drawingEvent
             )
         )
         return webSocketClient.sendMessage(message)

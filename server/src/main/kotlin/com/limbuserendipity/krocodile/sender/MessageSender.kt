@@ -99,7 +99,7 @@ class MessageSender(
             serverStatus = ServerStatus.Success(
                 result = ServerResult.DrawingState(
                     playerId = event.player.id,
-                    pathData = event.pathData
+                    drawingEvent = event.drawingEvent
                 )
             )
         )

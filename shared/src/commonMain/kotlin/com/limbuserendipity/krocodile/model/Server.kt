@@ -41,7 +41,7 @@ sealed class ServerResult {
     @SerialName("drawing")
     data class DrawingState(
         val playerId: String,
-        val pathData: PathData
+        val drawingEvent: DrawingEvent
     ) : ServerResult()
 
 

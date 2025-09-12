@@ -12,7 +12,7 @@ class StateManager {
     private fun updateState(newState: ClientState) {
         println("artist = ${newState.artist}")
         println("availableWords = ${newState.availableWords}")
-        println("pathData = ${newState.pathData}")
+        println("drawingEvent = ${newState.drawingEvent}")
         println("player = ${newState.player}")
         println("round = ${newState.round}")
         println("chatMessages = ${newState.chatMessages}")
@@ -63,9 +63,9 @@ class StateManager {
         )
     }
 
-    fun updateDrawingPath(path: PathData) {
+    fun updateDrawingEvent(drawingEvent: DrawingEvent) {
         updateState(
-            _state.value.copy(pathData = path)
+            _state.value.copy(drawingEvent = drawingEvent)
         )
     }
 

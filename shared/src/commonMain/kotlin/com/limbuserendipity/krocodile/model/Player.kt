@@ -54,7 +54,7 @@ sealed class PlayerEvent {
     @SerialName("drawing")
     data class Drawing(
         val player: Player,
-        val pathData: PathData
+        val drawingEvent: DrawingEvent
     ) : PlayerEvent()
 
 }

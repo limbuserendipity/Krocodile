@@ -67,3 +67,4 @@ val OutlineVariantDark = Color(0xFF41312A)
 
 val ScrimDark = Color(0xFF000000)
 
+val CanvasSurface = Color(0xFFF8F8F8)

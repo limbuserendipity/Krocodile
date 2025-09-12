@@ -8,8 +8,9 @@ import kotlinx.serialization.Serializable
 data class PathData(
     val x: Float,
     val y: Float,
-    val color : Long,
-    val drawerId : String,
+    val color: ULong,
+    val size: Int,
+    val drawerId: String,
     val drawState: DrawState
 )
 

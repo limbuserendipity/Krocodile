@@ -1,6 +1,7 @@
 package com.limbuserendipity.krocodile.component
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -13,18 +14,44 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.limbuserendipity.krocodile.theme.SurfaceVariantDark
+
+@Composable
+fun RoomSettingsDialog(
+    isCreate: Boolean,
+    roomName : String = "",
+    onDismissRequest: () -> Unit,
+    onSettingsRoom: (String, Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    Dialog(
+        onDismissRequest = onDismissRequest,
+    ) {
+        CreateRoomSurface(
+            isCreate = isCreate,
+            roomName = roomName,
+            onSettingsRoom = onSettingsRoom,
+            onDismiss = onDismissRequest,
+            modifier = modifier
+        )
+    }
+
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateRoomSurface(
-    onCreateRoom: (String, Int) -> Unit,
+    isCreate: Boolean,
+    roomName : String,
+    onSettingsRoom: (String, Int) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
     var title by remember {
-        mutableStateOf("")
+        mutableStateOf(roomName)
     }
 
     var maxPlayers by remember {
@@ -55,7 +82,7 @@ fun CreateRoomSurface(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Создать комнату",
+                    text = if(isCreate) "Создать комнату" else "Изменить настройки",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
@@ -184,12 +211,16 @@ fun CreateRoomSurface(
                 }
 
                 Button(
-                    onClick = { onCreateRoom(title, maxPlayers) },
+                    onClick = { onSettingsRoom(title, maxPlayers) },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Создать", fontSize = 14.sp, color = Color.White)
+                    Text(
+                        text = if (isCreate) "Создать" else "Изменить",
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
                 }
             }
         }
@@ -198,7 +229,7 @@ fun CreateRoomSurface(
 
 @Composable
 fun CloseIcon() {
-    androidx.compose.foundation.Canvas(modifier = Modifier.size(20.dp)) {
+    Canvas(modifier = Modifier.size(20.dp)) {
         drawLine(
             color = SurfaceVariantDark,
             start = Offset(4f, 4f),

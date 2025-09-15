@@ -37,6 +37,7 @@ val gameJsonModule = SerializersModule {
         subclass(PlayerEvent.LeaveRoom::class)
         subclass(PlayerEvent.KickPlayer::class)
         subclass(PlayerEvent.SetOwner::class)
+        subclass(PlayerEvent.ChangeSettingsRoom::class)
         subclass(PlayerEvent.EnterToRoom::class)
         subclass(PlayerEvent.StartGame::class)
         subclass(PlayerEvent.Word::class)

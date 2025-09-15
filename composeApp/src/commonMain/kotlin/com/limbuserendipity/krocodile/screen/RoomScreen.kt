@@ -38,6 +38,10 @@ class RoomScreen : Screen {
             mutableStateOf(false)
         }
 
+        var showSettingDialog by remember {
+            mutableStateOf(false)
+        }
+
         Box(
 
         ) {
@@ -55,11 +59,12 @@ class RoomScreen : Screen {
                     playerCount = state.value.players.count(),
                     maxPlayers = state.value.roomData.maxCount,
                     gameStatus = state.value.roomData.gameState,
+                    isOwner = state.value.owner.id == state.value.player.id,
                     onPlayers = {
                         showPlayersDialog = true
                     },
                     onShowSettings = {
-
+                        showSettingDialog = true
                     },
                     onStartGame = {
                         viewModel.startGame()
@@ -107,7 +112,7 @@ class RoomScreen : Screen {
             )
         }
 
-        if(showPlayersDialog){
+        if (showPlayersDialog) {
             PlayersListDialog(
                 players = state.value.players,
                 currentUserId = state.value.player.id,
@@ -120,6 +125,20 @@ class RoomScreen : Screen {
                 },
                 onDismissRequest = {
                     showPlayersDialog = false
+                }
+            )
+        }
+
+        if (showSettingDialog) {
+            RoomSettingsDialog(
+                isCreate = false,
+                roomName = state.value.roomData.title,
+                onDismissRequest = {
+                    showSettingDialog = false
+                },
+                onSettingsRoom = { title, maxPlayers ->
+                    viewModel.sendChangeSettingsRoom(title, maxPlayers)
+                    showSettingDialog = false
                 }
             )
         }
@@ -138,6 +157,7 @@ class RoomScreen : Screen {
                     is RoomUiEvent.ShowWordsDialog -> {
                         showWordsDialog = (event as RoomUiEvent.ShowWordsDialog).showDialog
                     }
+
                     is RoomUiEvent.NavigateToLobby -> {
                         navigator.push(LobbyScreen())
                     }

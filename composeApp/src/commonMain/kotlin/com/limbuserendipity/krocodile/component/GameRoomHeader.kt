@@ -41,6 +41,7 @@ fun GameRoomHeader(
     playerCount: Int,
     maxPlayers: Int,
     gameStatus: GameState,
+    isOwner : Boolean,
     onPlayers : () -> Unit,
     onShowSettings: () -> Unit,
     onStartGame: () -> Unit,
@@ -113,11 +114,13 @@ fun GameRoomHeader(
             }
 
             Row {
-                IconButton(onClick = onShowSettings) {
-                    Icon(
-                        painter = painterResource(Res.drawable.settings),
-                        contentDescription = "Settings"
-                    )
+                if(isOwner){
+                    IconButton(onClick = onShowSettings) {
+                        Icon(
+                            painter = painterResource(Res.drawable.settings),
+                            contentDescription = "Settings"
+                        )
+                    }
                 }
                 if (gameStatus == GameState.Wait) {
                     Button(
@@ -125,7 +128,7 @@ fun GameRoomHeader(
                         enabled = canStart,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
-                            disabledContainerColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
                         ),
                         shape = RoundedCornerShape(12.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),

@@ -12,7 +12,6 @@ import com.limbuserendipity.krocodile.client.GameClient
 import com.limbuserendipity.krocodile.model.*
 import com.limbuserendipity.krocodile.screen.RoomUiEvent
 import com.limbuserendipity.krocodile.screen.RoomUiState
-import com.limbuserendipity.krocodile.screen.SigInUiEvent
 import com.limbuserendipity.krocodile.screen.UiEvent
 import com.limbuserendipity.krocodile.screen.roomUiStatePlaceHolder
 import com.limbuserendipity.krocodile.theme.CanvasSurface
@@ -57,7 +56,7 @@ class RoomViewModel(
                     )
                 )
 
-                if(state.player.roomId == 0L){
+                if (state.player.roomId == 0L) {
                     _uiEvent.emit(RoomUiEvent.NavigateToLobby)
                 }
 
@@ -287,6 +286,12 @@ class RoomViewModel(
     fun sendOnKickPlayer(playerId: String) {
         viewModelScope.launch {
             client.kickPlayer(playerId)
+        }
+    }
+
+    fun sendChangeSettingsRoom(title: String, maxPlayers: Int) {
+        viewModelScope.launch {
+            client.changeSettingsRoom(title, maxPlayers)
         }
     }
 

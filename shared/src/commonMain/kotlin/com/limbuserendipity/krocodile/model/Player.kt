@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("player")
-data class Player(val id: String, val name: String, var isArtist: Boolean, var roomId: Long, var score : Int)
+data class Player(val id: String, val name: String, var isArtist: Boolean, var roomId: Long, var score: Int)
 
 @Serializable
 @Polymorphic
@@ -23,6 +23,7 @@ sealed class PlayerEvent {
     @Serializable
     @SerialName("leave_room")
     data class LeaveRoom(val player: Player) : PlayerEvent()
+
     @Serializable
     @SerialName("enter_to_room")
     data class EnterToRoom(
@@ -34,14 +35,22 @@ sealed class PlayerEvent {
     @SerialName("kick_player")
     data class KickPlayer(
         val player: Player,
-        val kickedPlayerId : String
+        val kickedPlayerId: String
     ) : PlayerEvent()
 
     @Serializable
     @SerialName("set_owner")
     data class SetOwner(
         val player: Player,
-        val newOwnerId : String
+        val newOwnerId: String
+    ) : PlayerEvent()
+
+    @Serializable
+    @SerialName("change_settings_room")
+    data class ChangeSettingsRoom(
+        val player: Player,
+        val title: String,
+        val maxPlayers: Int
     ) : PlayerEvent()
 
     @Serializable
@@ -53,8 +62,8 @@ sealed class PlayerEvent {
     @Serializable
     @SerialName("word")
     data class Word(
-        val player : Player,
-        val word : String
+        val player: Player,
+        val word: String
     ) : PlayerEvent()
 
     @Serializable
@@ -78,13 +87,13 @@ sealed class PlayerEvent {
 data class PlayerData(
     val id: String,
     val name: String,
-    val score : Int,
+    val score: Int,
     val isArtist: Boolean
 )
 
 @Serializable
 @SerialName("chat_message_data")
 data class ChatMessageData(
-    val playerName : String,
-    val message : String
+    val playerName: String,
+    val message: String
 )

@@ -71,12 +71,16 @@ class GameClient(
     }
 
 
-    suspend fun setOwner(playerId: String): Result<Unit>{
+    suspend fun setOwner(playerId: String): Result<Unit> {
         return messageService.sendSetOwner(playerId)
     }
 
-    suspend fun kickPlayer(playerId: String): Result<Unit>{
+    suspend fun kickPlayer(playerId: String): Result<Unit> {
         return messageService.sendKickPlayer(playerId)
+    }
+
+    suspend fun changeSettingsRoom(title: String, maxPlayers: Int): Result<Unit> {
+        return messageService.sendChangeSettingsRoom(title, maxPlayers)
     }
 
 

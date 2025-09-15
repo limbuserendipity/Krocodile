@@ -67,4 +67,12 @@ val OutlineVariantDark = Color(0xFF41312A)
 
 val ScrimDark = Color(0xFF000000)
 
+
+
+val ColorCharcoal = Color(0xFF000000)
+val ColorTeal = Color(0xFF3DAE8B)
+val ColorSunset = Color(0xFFFF6B35)
+val ColorLavender = Color(0xFF9B5DE5)
+val ColorCoral = Color(0xFFE63946)
+val ColorSunshine = Color(0xFFF1C40F)
 val CanvasSurface = Color(0xFFF8F8F8)

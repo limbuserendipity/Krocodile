@@ -1,11 +1,12 @@
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -15,8 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.Res
-import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.play_circle
-import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.settings
+import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.crown_24_filled
+import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.emergency_exit_solid
 import com.limbuserendipity.krocodile.model.PlayerData
 import org.jetbrains.compose.resources.painterResource
 
@@ -32,7 +33,7 @@ fun PlayersListDialog(
 ) {
     Dialog(
         onDismissRequest = onDismissRequest,
-    ){
+    ) {
         Surface(
             shape = RoundedCornerShape(20.dp),
             color = Color.White,
@@ -186,7 +187,7 @@ fun PlayerItem(
                             )
                         ) {
                             Icon(
-                                painter = painterResource(Res.drawable.settings),
+                                painter = painterResource(Res.drawable.crown_24_filled),
                                 contentDescription = "Передать хост",
                                 modifier = Modifier.size(16.dp)
                             )
@@ -199,7 +200,7 @@ fun PlayerItem(
                             )
                         ) {
                             Icon(
-                                painter = painterResource(Res.drawable.play_circle),
+                                painter = painterResource(Res.drawable.emergency_exit_solid),
                                 contentDescription = "Выгнать",
                                 modifier = Modifier.size(16.dp)
                             )

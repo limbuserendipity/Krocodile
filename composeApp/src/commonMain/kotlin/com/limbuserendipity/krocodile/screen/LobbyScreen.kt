@@ -11,13 +11,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.limbuserendipity.krocodile.component.CreateRoomSurface
 import com.limbuserendipity.krocodile.component.LobbyHeader
 import com.limbuserendipity.krocodile.component.RoomCard
+import com.limbuserendipity.krocodile.component.RoomSettingsDialog
 import com.limbuserendipity.krocodile.model.RoomData
 import com.limbuserendipity.krocodile.vm.LobbyViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -75,23 +74,17 @@ class LobbyScreen() : Screen {
         }
 
         if (showDialog) {
-            Dialog(
+            RoomSettingsDialog(
+                isCreate = true,
                 onDismissRequest = {
                     showDialog = false
-                }
-            ) {
-                CreateRoomSurface(
-                    onCreateRoom = { title, maxPlayers ->
-                        viewModel.createRoom(
-                            title = title,
-                            maxPlayers = maxPlayers
-                        )
-                    },
-                    onDismiss = {
-                        showDialog = false
-                    }
-                )
-            }
+                },
+                onSettingsRoom = { title, maxPlayers ->
+                    viewModel.createRoom(
+                        title = title,
+                        maxPlayers = maxPlayers
+                    )
+                })
         }
     }
 }

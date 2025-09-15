@@ -12,9 +12,9 @@ sealed class Room {
 
     data class GameRoom(
         val id: Long,
-        val title: String,
+        var title: String,
         val players: ConcurrentHashMap<String, Player>,
-        val maxPlayers: Int,
+        var maxPlayers: Int,
         var owner: Player,
         var artist: Player,
         var state: GameState,

@@ -84,6 +84,15 @@ class WebSocketHandler(
                 }
             }
 
+            is PlayerEvent.ChangeSettingsRoom -> {
+                val player = playerService.getPlayerById(event.player.id) ?: return
+                val room = roomService.changeSettings(player, event.title, event.maxPlayers)
+                if (room != null){
+                    messageSender.sendRoomState(room)
+                }
+                messageSender.sendLobbyState(Room.Lobby.players)
+            }
+
             is PlayerEvent.EnterToRoom -> {
                 val player = playerService.getPlayerById(event.player.id) ?: return
                 val room = roomService.joinRoom(player, event.roomId) ?: return

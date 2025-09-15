@@ -105,4 +105,16 @@ class MessageService(
         )
         return webSocketClient.sendMessage(message)
     }
+
+    suspend fun sendChangeSettingsRoom(title: String, maxPlayers: Int): Result<Unit> {
+        val player = stateManager.state.value.player ?: return Result.failure(IllegalStateException("No player"))
+        val message = GameMessage.PlayerMessage(
+            playerEvent = PlayerEvent.ChangeSettingsRoom(
+                player = player,
+                title = title,
+                maxPlayers = maxPlayers
+            )
+        )
+        return webSocketClient.sendMessage(message)
+    }
 }

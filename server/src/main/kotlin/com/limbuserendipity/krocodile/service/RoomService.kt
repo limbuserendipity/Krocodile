@@ -65,7 +65,7 @@ class RoomService {
 
     fun kickPlayer(owner: Player, kickedPlayer: Player): Room.GameRoom? {
         val room = rooms[owner.roomId] ?: return null
-        if(room.owner.id == owner.id && room.players.contains(kickedPlayer.id)){
+        if (room.owner.id == owner.id && room.players.keys.contains(kickedPlayer.id)) {
             room.players.remove(kickedPlayer.id)
         }
         return room
@@ -74,12 +74,21 @@ class RoomService {
     fun setOwner(oldOwner: Player, newOwner: Player): Room.GameRoom? {
         val room = rooms[oldOwner.roomId] ?: return null
         if (oldOwner.id == room.owner.id) {
-            if (room.players.contains(newOwner.id)) {
+            if (room.players.keys.contains(newOwner.id)) {
                 room.owner = newOwner
                 return room
             }
         }
         return null
+    }
+
+    fun changeSettings(player: Player, title: String, maxPlayers: Int): Room.GameRoom? {
+        val room = rooms[player.roomId] ?: return null
+        if(player.id == room.owner.id){
+            room.title = title
+            room.maxPlayers = maxPlayers
+        }
+        return room
     }
 
 }

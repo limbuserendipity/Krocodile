@@ -2,10 +2,8 @@ package com.limbuserendipity.krocodile.client.service
 
 import com.limbuserendipity.krocodile.client.network.WebSocketClient
 import com.limbuserendipity.krocodile.client.state.StateManager
-import com.limbuserendipity.krocodile.model.DrawState
 import com.limbuserendipity.krocodile.model.DrawingEvent
 import com.limbuserendipity.krocodile.model.GameMessage
-import com.limbuserendipity.krocodile.model.PathData
 import com.limbuserendipity.krocodile.model.PlayerEvent
 
 class MessageService(
@@ -81,6 +79,28 @@ class MessageService(
             playerEvent = PlayerEvent.Drawing(
                 player = player,
                 drawingEvent = drawingEvent
+            )
+        )
+        return webSocketClient.sendMessage(message)
+    }
+
+    suspend fun sendSetOwner(playerId: String): Result<Unit> {
+        val player = stateManager.state.value.player ?: return Result.failure(IllegalStateException("No player"))
+        val message = GameMessage.PlayerMessage(
+            playerEvent = PlayerEvent.SetOwner(
+                player = player,
+                newOwnerId = playerId,
+            )
+        )
+        return webSocketClient.sendMessage(message)
+    }
+
+    suspend fun sendKickPlayer(playerId: String): Result<Unit> {
+        val player = stateManager.state.value.player ?: return Result.failure(IllegalStateException("No player"))
+        val message = GameMessage.PlayerMessage(
+            playerEvent = PlayerEvent.KickPlayer(
+                player = player,
+                kickedPlayerId = playerId,
             )
         )
         return webSocketClient.sendMessage(message)

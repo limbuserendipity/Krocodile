@@ -67,12 +67,10 @@ fun WordSelectionDialog(
                             .padding(16.dp),
                         contentAlignment = Alignment.Center
                     ) {
-//                        Icon(
-//                            imageVector = androidx.compose.material.icons.Icons.Default.CheckCircle,
-//                            contentDescription = null,
-//                            tint = Color.White,
-//                            modifier = Modifier.size(32.dp)
-//                        )
+                        Text(
+                            text = "\uD83E\uDD14",
+                            fontSize = 34.sp
+                        )
                     }
 
                     Text(

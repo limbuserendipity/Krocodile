@@ -21,16 +21,22 @@ class MessageSender(
                     players = room.players.values.map { player ->
                         PlayerData(
                             id = player.id,
-                            name = player.name
+                            name = player.name,
+                            score = player.score,
+                            isArtist = player.isArtist
                         )
                     },
                     owner = PlayerData(
                         id = room.owner.id,
-                        name = room.owner.name
+                        name = room.owner.name,
+                        score = room.owner.score,
+                        isArtist = room.owner.isArtist
                     ),
                     artist = PlayerData(
                         id = room.artist.id,
-                        name = room.artist.name
+                        name = room.artist.name,
+                        score = room.artist.score,
+                        isArtist = room.artist.isArtist
                     ),
                     chat = room.chat,
                     round = room.round

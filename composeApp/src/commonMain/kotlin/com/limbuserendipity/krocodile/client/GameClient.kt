@@ -6,7 +6,6 @@ import com.limbuserendipity.krocodile.client.service.MessageService
 import com.limbuserendipity.krocodile.client.state.ClientState
 import com.limbuserendipity.krocodile.client.state.ConnectionStatus
 import com.limbuserendipity.krocodile.client.state.StateManager
-import com.limbuserendipity.krocodile.model.DrawState
 import com.limbuserendipity.krocodile.model.DrawingEvent
 import io.ktor.client.*
 import kotlinx.coroutines.CoroutineScope
@@ -69,6 +68,15 @@ class GameClient(
 
     suspend fun sendDrawing(drawingEvent: DrawingEvent): Result<Unit> {
         return messageService.sendDrawingMessage(drawingEvent)
+    }
+
+
+    suspend fun setOwner(playerId: String): Result<Unit>{
+        return messageService.sendSetOwner(playerId)
+    }
+
+    suspend fun kickPlayer(playerId: String): Result<Unit>{
+        return messageService.sendKickPlayer(playerId)
     }
 
 

@@ -12,6 +12,7 @@ import com.limbuserendipity.krocodile.client.GameClient
 import com.limbuserendipity.krocodile.model.*
 import com.limbuserendipity.krocodile.screen.RoomUiEvent
 import com.limbuserendipity.krocodile.screen.RoomUiState
+import com.limbuserendipity.krocodile.screen.SigInUiEvent
 import com.limbuserendipity.krocodile.screen.UiEvent
 import com.limbuserendipity.krocodile.screen.roomUiStatePlaceHolder
 import com.limbuserendipity.krocodile.theme.CanvasSurface
@@ -55,6 +56,10 @@ class RoomViewModel(
                         round = state.round
                     )
                 )
+
+                if(state.player.roomId == 0L){
+                    _uiEvent.emit(RoomUiEvent.NavigateToLobby)
+                }
 
                 if (state.currentRoom.gameState == GameState.Starting && state.player.isArtist) {
                     _uiEvent.emit(RoomUiEvent.ShowWordsDialog(true))
@@ -271,6 +276,18 @@ class RoomViewModel(
         currentPath.value = currentPath.value.copy(
             size = size
         )
+    }
+
+    fun sendTransferHost(playerId: String) {
+        viewModelScope.launch {
+            client.setOwner(playerId)
+        }
+    }
+
+    fun sendOnKickPlayer(playerId: String) {
+        viewModelScope.launch {
+            client.kickPlayer(playerId)
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package com.limbuserendipity.krocodile.screen
 
+import PlayersListDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -8,6 +9,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.limbuserendipity.krocodile.component.*
 import com.limbuserendipity.krocodile.model.*
 import com.limbuserendipity.krocodile.vm.RoomViewModel
@@ -20,6 +23,8 @@ class RoomScreen : Screen {
         val viewModel: RoomViewModel = koinViewModel()
 
         val state = viewModel.uiState.collectAsState()
+
+        val navigator = LocalNavigator.currentOrThrow
 
         val currentPath = viewModel.currentPath.collectAsState()
         val completedPaths = viewModel.completedPaths.collectAsState()
@@ -50,6 +55,9 @@ class RoomScreen : Screen {
                     playerCount = state.value.players.count(),
                     maxPlayers = state.value.roomData.maxCount,
                     gameStatus = state.value.roomData.gameState,
+                    onPlayers = {
+                        showPlayersDialog = true
+                    },
                     onShowSettings = {
 
                     },
@@ -99,6 +107,23 @@ class RoomScreen : Screen {
             )
         }
 
+        if(showPlayersDialog){
+            PlayersListDialog(
+                players = state.value.players,
+                currentUserId = state.value.player.id,
+                ownerId = state.value.owner.id,
+                onTransferHost = { playerId ->
+                    viewModel.sendTransferHost(playerId)
+                },
+                onKickPlayer = { playerId ->
+                    viewModel.sendOnKickPlayer(playerId)
+                },
+                onDismissRequest = {
+                    showPlayersDialog = false
+                }
+            )
+        }
+
         LaunchedEffect(viewModel.uiEvent) {
             viewModel.uiEvent.collect { event ->
                 when (event as RoomUiEvent) {
@@ -113,7 +138,11 @@ class RoomScreen : Screen {
                     is RoomUiEvent.ShowWordsDialog -> {
                         showWordsDialog = (event as RoomUiEvent.ShowWordsDialog).showDialog
                     }
+                    is RoomUiEvent.NavigateToLobby -> {
+                        navigator.push(LobbyScreen())
+                    }
                 }
+
             }
         }
 
@@ -156,12 +185,15 @@ fun playerPlaceHolder() = Player(
     id = "PlaceHolder",
     name = "Smith",
     isArtist = false,
-    roomId = 0
+    roomId = 0,
+    score = 0
 )
 
 fun playerDataPlaceHolder() = PlayerData(
     id = playerPlaceHolder().id,
-    name = playerPlaceHolder().name
+    name = playerPlaceHolder().name,
+    score = 0,
+    isArtist = false
 )
 
 sealed class RoomUiEvent : UiEvent() {
@@ -177,4 +209,7 @@ sealed class RoomUiEvent : UiEvent() {
     data class ShowPlayersDialog(
         val showDialog: Boolean
     ) : RoomUiEvent()
+
+    object NavigateToLobby : RoomUiEvent()
+
 }

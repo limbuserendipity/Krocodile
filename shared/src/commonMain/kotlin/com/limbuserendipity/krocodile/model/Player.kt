@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("player")
-data class Player(val id: String, val name: String, var isArtist: Boolean, var roomId: Long)
+data class Player(val id: String, val name: String, var isArtist: Boolean, var roomId: Long, var score : Int)
 
 @Serializable
 @Polymorphic
@@ -28,6 +28,20 @@ sealed class PlayerEvent {
     data class EnterToRoom(
         val player: Player,
         val roomId: Long
+    ) : PlayerEvent()
+
+    @Serializable
+    @SerialName("kick_player")
+    data class KickPlayer(
+        val player: Player,
+        val kickedPlayerId : String
+    ) : PlayerEvent()
+
+    @Serializable
+    @SerialName("set_owner")
+    data class SetOwner(
+        val player: Player,
+        val newOwnerId : String
     ) : PlayerEvent()
 
     @Serializable
@@ -63,7 +77,9 @@ sealed class PlayerEvent {
 @SerialName("player_data")
 data class PlayerData(
     val id: String,
-    val name: String
+    val name: String,
+    val score : Int,
+    val isArtist: Boolean
 )
 
 @Serializable

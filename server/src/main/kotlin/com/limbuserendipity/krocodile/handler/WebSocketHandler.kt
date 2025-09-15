@@ -60,6 +60,29 @@ class WebSocketHandler(
                 messageSender.sendPlayerState(player)
                 messageSender.sendLobbyState(Room.Lobby.players)
             }
+            is PlayerEvent.KickPlayer ->{
+                val owner = playerService.getPlayerById(event.player.id) ?: return
+                val kickedPlayer = playerService.getPlayerById(event.kickedPlayerId) ?: return
+                val room = roomService.kickPlayer(owner, kickedPlayer)
+
+                if (room != null) {
+                    messageSender.sendRoomState(room)
+                }
+
+                kickedPlayer.roomId = Room.Lobby.id
+                Room.Lobby.players[kickedPlayer.id] = kickedPlayer
+                messageSender.sendPlayerState(kickedPlayer)
+                messageSender.sendLobbyState(Room.Lobby.players)
+            }
+
+            is PlayerEvent.SetOwner -> {
+                val oldOwner = playerService.getPlayerById(event.player.id) ?: return
+                val newOwner = playerService.getPlayerById(event.newOwnerId) ?: return
+                val room = roomService.setOwner(oldOwner, newOwner)
+                if (room != null) {
+                    messageSender.sendRoomState(room)
+                }
+            }
 
             is PlayerEvent.EnterToRoom -> {
                 val player = playerService.getPlayerById(event.player.id) ?: return

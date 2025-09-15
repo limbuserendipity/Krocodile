@@ -11,7 +11,8 @@ class PlayerService {
             id = generatePlayerId(),
             name = name,
             isArtist = false,
-            roomId = Room.Lobby.id
+            roomId = Room.Lobby.id,
+            score = 0
         )
         players[player.id] = player
         return player

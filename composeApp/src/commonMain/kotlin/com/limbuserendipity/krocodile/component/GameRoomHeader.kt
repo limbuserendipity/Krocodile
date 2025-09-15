@@ -2,6 +2,7 @@ package com.limbuserendipity.krocodile.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,7 @@ fun GameRoomHeader(
     playerCount: Int,
     maxPlayers: Int,
     gameStatus: GameState,
+    onPlayers : () -> Unit,
     onShowSettings: () -> Unit,
     onStartGame: () -> Unit,
     canStart: Boolean,
@@ -74,12 +76,19 @@ fun GameRoomHeader(
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Row {
-                        Text(
-                            text = "$playerCount/$maxPlayers игроков",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(end = 16.dp)
-                        )
+                        Box(
+                            modifier = Modifier
+                                .padding(end = 16.dp)
+                                .clickable{
+                                    onPlayers()
+                                }
+                        ){
+                            Text(
+                                text = "$playerCount/$maxPlayers игроков",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
                         Box(
                             modifier = Modifier
                                 .background(

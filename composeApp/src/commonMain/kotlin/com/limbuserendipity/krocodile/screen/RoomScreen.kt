@@ -1,22 +1,15 @@
 package com.limbuserendipity.krocodile.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import cafe.adriel.voyager.core.screen.Screen
-import com.limbuserendipity.krocodile.component.ChatSection
-import com.limbuserendipity.krocodile.component.DrawingCanvas
-import com.limbuserendipity.krocodile.component.GameRoomHeader
-import com.limbuserendipity.krocodile.component.InputSection
+import com.limbuserendipity.krocodile.component.*
 import com.limbuserendipity.krocodile.model.*
-import com.limbuserendipity.krocodile.util.Space
 import com.limbuserendipity.krocodile.vm.RoomViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -25,15 +18,20 @@ class RoomScreen : Screen {
     @Composable
     override fun Content() {
         val viewModel: RoomViewModel = koinViewModel()
-        var showDialog by remember {
-            mutableStateOf(false)
-        }
 
         val state = viewModel.uiState.collectAsState()
 
         val currentPath = viewModel.currentPath.collectAsState()
         val completedPaths = viewModel.completedPaths.collectAsState()
         val usersPath = viewModel.userPaths.collectAsState()
+
+        var showPlayersDialog by remember {
+            mutableStateOf(false)
+        }
+
+        var showWordsDialog by remember {
+            mutableStateOf(false)
+        }
 
         Box(
 
@@ -73,7 +71,7 @@ class RoomScreen : Screen {
                 )
 
                 InputSection(
-                    isArtist = true,
+                    isArtist = viewModel.uiState.value.player.isArtist,
                     onSendMessage = viewModel::sendChatMessage,
                     onColorSelected = viewModel::onColorSelected,
                     onToolSelected = viewModel::onToolSelected,
@@ -88,90 +86,53 @@ class RoomScreen : Screen {
 
         }
 
-        if (showDialog) {
-            println("showDialog")
-            WordsDialog(
+        if (showWordsDialog) {
+            WordSelectionDialog(
                 words = state.value.availableWords,
-                onWordClick = { word ->
-                    showDialog = false
+                onWordSelected = { word ->
+                    showWordsDialog = false
                     viewModel.sendWordMessage(word)
-                }
+                },
+                onDismiss = {
+
+                },
             )
         }
 
-        LaunchedEffect(state.value) {
-            println("showDialog")
-            if (state.value.availableWords.isNotEmpty()) {
-                showDialog = true
-            }
-        }
+        LaunchedEffect(viewModel.uiEvent) {
+            viewModel.uiEvent.collect { event ->
+                when (event as RoomUiEvent) {
+                    is RoomUiEvent.ShowPlayersDialog -> {
 
-    }
+                    }
 
-    @Composable
-    fun WordsDialog(
-        words: List<String>,
-        onWordClick: (String) -> Unit
-    ) {
-        Dialog(
-            onDismissRequest = {
+                    is RoomUiEvent.ShowSettingDialog -> {
 
-            },
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(vertical = 32.dp)
-            ) {
-                4.dp.Space()
-                words.forEach { word ->
-                    WordItem(
-                        word = word,
-                        onClick = {
-                            onWordClick(word)
-                        }
-                    )
-                    8.dp.Space()
+                    }
+
+                    is RoomUiEvent.ShowWordsDialog -> {
+                        showWordsDialog = (event as RoomUiEvent.ShowWordsDialog).showDialog
+                    }
                 }
             }
         }
 
-    }
-
-    @Composable
-    fun WordItem(
-        word: String,
-        onClick: () -> Unit
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .background(color = MaterialTheme.colorScheme.background)
-                .size(100.dp)
-                .padding(16.dp)
-                .clickable {
-                    onClick()
-                }
-        ) {
-            Text(
-                text = word,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
     }
 }
 
+
 data class RoomUiState(
-    val player : Player,
+    val player: Player,
     val roomData: RoomData,
     val players: List<PlayerData>,
     var owner: PlayerData,
     var artist: PlayerData,
-    var isArtist : Boolean,
+    var isArtist: Boolean,
     val chat: List<ChatMessageData>,
     val availableWords: List<String>,
     val round: Int = 0
 )
+
 
 fun roomUiStatePlaceHolder() = RoomUiState(
     player = playerPlaceHolder(),
@@ -202,3 +163,18 @@ fun playerDataPlaceHolder() = PlayerData(
     id = playerPlaceHolder().id,
     name = playerPlaceHolder().name
 )
+
+sealed class RoomUiEvent : UiEvent() {
+
+    data class ShowWordsDialog(
+        val showDialog: Boolean
+    ) : RoomUiEvent()
+
+    data class ShowSettingDialog(
+        val showDialog: Boolean
+    ) : RoomUiEvent()
+
+    data class ShowPlayersDialog(
+        val showDialog: Boolean
+    ) : RoomUiEvent()
+}

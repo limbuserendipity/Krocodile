@@ -9,10 +9,8 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.limbuserendipity.krocodile.client.GameClient
-import com.limbuserendipity.krocodile.model.DrawState
-import com.limbuserendipity.krocodile.model.DrawingEvent
-import com.limbuserendipity.krocodile.model.PathData
-import com.limbuserendipity.krocodile.model.ToolType
+import com.limbuserendipity.krocodile.model.*
+import com.limbuserendipity.krocodile.screen.RoomUiEvent
 import com.limbuserendipity.krocodile.screen.RoomUiState
 import com.limbuserendipity.krocodile.screen.UiEvent
 import com.limbuserendipity.krocodile.screen.roomUiStatePlaceHolder
@@ -57,6 +55,13 @@ class RoomViewModel(
                         round = state.round
                     )
                 )
+
+                if (state.currentRoom.gameState == GameState.Starting && state.player.isArtist) {
+                    _uiEvent.emit(RoomUiEvent.ShowWordsDialog(true))
+                } else {
+                    _uiEvent.emit(RoomUiEvent.ShowWordsDialog(false))
+                }
+
             }
         }
     }
@@ -73,8 +78,8 @@ class RoomViewModel(
         }
     }
 
-    fun handleDrawPath(drawPath: DrawingEvent.DrawPath){
-        when (drawPath.pathData.drawState){
+    fun handleDrawPath(drawPath: DrawingEvent.DrawPath) {
+        when (drawPath.pathData.drawState) {
             DrawState.DrawStart -> {
                 val newPath = Path().apply {
                     moveTo(drawPath.pathData.x, drawPath.pathData.y)
@@ -118,16 +123,18 @@ class RoomViewModel(
         }
     }
 
-    fun handleToolSelect(toolSelect: DrawingEvent.ToolSelect){
+    fun handleToolSelect(toolSelect: DrawingEvent.ToolSelect) {
 
-        when(toolSelect.toolType){
+        when (toolSelect.toolType) {
             is ToolType.Eraser -> {
 
             }
+
             is ToolType.Undo -> {
                 println("Undo")
                 completedPaths.value = completedPaths.value.dropLast(1)
             }
+
             is ToolType.Clear -> {
                 completedPaths.value = listOf()
                 userPaths.value = mapOf()
@@ -234,7 +241,7 @@ class RoomViewModel(
         type: ToolType
     ) {
 
-        when(type){
+        when (type) {
             is ToolType.Eraser -> {
                 currentPath.value = currentPath.value.copy(
                     color = CanvasSurface
@@ -244,6 +251,7 @@ class RoomViewModel(
             is ToolType.Undo -> {
                 completedPaths.value = completedPaths.value.dropLast(1)
             }
+
             is ToolType.Clear -> {
                 completedPaths.value = listOf()
                 userPaths.value = mapOf()
@@ -268,9 +276,9 @@ class RoomViewModel(
 }
 
 data class PathInfo(
-    val path : Path,
-    val color : Color,
-    val size : Int
+    val path: Path,
+    val color: Color,
+    val size: Int
 )
 
 fun pathInfoPlaceHolder() = PathInfo(

@@ -1,4 +1,5 @@
 import com.limbuserendipity.krocodile.model.*
+import com.limbuserendipity.krocodile.util.getRandomDrawingWords
 import io.ktor.server.websocket.*
 import kotlinx.serialization.json.Json
 
@@ -75,7 +76,7 @@ class WebSocketHandler(
                 val artist = gameService.startRound(room)
 
                 messageSender.sendPlayerStateToRoom(room)
-                messageSender.sendWords(artist, listOf("Player", "Server", "Shared"))
+                messageSender.sendWords(artist, getRandomDrawingWords())
                 messageSender.sendRoomState(room)
             }
 

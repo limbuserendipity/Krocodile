@@ -3,6 +3,7 @@ package com.limbuserendipity.krocodile.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.limbuserendipity.krocodile.client.GameClient
+import com.limbuserendipity.krocodile.screen.LobbyUiEvent
 import com.limbuserendipity.krocodile.screen.LobbyUiState
 import com.limbuserendipity.krocodile.screen.UiEvent
 import kotlinx.coroutines.flow.*
@@ -26,8 +27,8 @@ class LobbyViewModel(
         viewModelScope.launch {
             client.state.collect { state ->
 
-                if(state.currentRoom != null){
-                    _uiEvent.emit(UiEvent.NavigateToGame)
+                if (state.currentRoom != null) {
+                    _uiEvent.emit(LobbyUiEvent.NavigateToRoom)
                 }
 
                 _uiState.emit(
@@ -36,6 +37,12 @@ class LobbyViewModel(
                     )
                 )
             }
+        }
+    }
+
+    fun onShowCreateRoomDialog() {
+        viewModelScope.launch {
+            _uiEvent.emit(LobbyUiEvent.ShowCreateRoomDialog(true))
         }
     }
 

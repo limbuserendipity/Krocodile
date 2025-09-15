@@ -3,6 +3,7 @@ package com.limbuserendipity.krocodile.vm
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.limbuserendipity.krocodile.client.GameClient
+import com.limbuserendipity.krocodile.screen.SigInUiEvent
 import com.limbuserendipity.krocodile.screen.UiEvent
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -26,7 +27,7 @@ class SigInViewModel(
         viewModelScope.launch {
             client.state.collect { state ->
                 if (state.player != null) {
-                    _uiEvent.emit(UiEvent.NavigateToLobby)
+                    _uiEvent.emit(SigInUiEvent.NavigateToLobby)
                 }
             }
         }

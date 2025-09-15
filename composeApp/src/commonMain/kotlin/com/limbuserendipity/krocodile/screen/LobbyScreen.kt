@@ -43,7 +43,7 @@ class LobbyScreen() : Screen {
 
             LobbyHeader(
                 onCreateRoom = {
-                    showDialog = true
+                    viewModel.onShowCreateRoomDialog()
                 })
 
             LazyColumn(
@@ -62,21 +62,13 @@ class LobbyScreen() : Screen {
 
         LaunchedEffect(viewModel.uiEvent) {
             viewModel.uiEvent.collect { event ->
-                when (event) {
-                    is UiEvent.NavigateToGame -> {
+                when (event as LobbyUiEvent) {
+                    is LobbyUiEvent.NavigateToRoom -> {
                         navigator.push(RoomScreen())
                     }
 
-                    is UiEvent.NavigateToLobby -> {
-
-                    }
-
-                    is UiEvent.ShowError -> {
-
-                    }
-
-                    is UiEvent.ShowMessage -> {
-
+                    is LobbyUiEvent.ShowCreateRoomDialog -> {
+                        showDialog = (event as LobbyUiEvent.ShowCreateRoomDialog).showDialog
                     }
                 }
             }
@@ -107,3 +99,10 @@ class LobbyScreen() : Screen {
 data class LobbyUiState(
     val rooms: List<RoomData> = emptyList(),
 )
+
+sealed class LobbyUiEvent : UiEvent() {
+    object NavigateToRoom : LobbyUiEvent()
+    data class ShowCreateRoomDialog(
+        var showDialog: Boolean
+    ) : LobbyUiEvent()
+}

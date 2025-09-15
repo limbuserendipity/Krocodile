@@ -40,31 +40,20 @@ class SigInScreen() : Screen {
 
         LaunchedEffect(viewModel.uiEvent) {
             viewModel.uiEvent.collect { event ->
-                when (event) {
-                    is UiEvent.NavigateToGame -> {
-
-                    }
-
-                    is UiEvent.NavigateToLobby -> {
-                        navigator.push(LobbyScreen())
-                    }
-
-                    is UiEvent.ShowError -> {
-
-                    }
-
-                    is UiEvent.ShowMessage -> {
-
-                    }
+                if (event is SigInUiEvent.NavigateToLobby) {
+                    navigator.push(LobbyScreen())
                 }
             }
         }
     }
 }
 
+sealed class SigInUiEvent : UiEvent() {
+    object NavigateToLobby : SigInUiEvent()
+}
+
 sealed class UiEvent {
     data class ShowError(val message: String) : UiEvent()
     data class ShowMessage(val message: String) : UiEvent()
-    object NavigateToGame : UiEvent()
-    object NavigateToLobby : UiEvent()
+    object NavigateTo : UiEvent()
 }

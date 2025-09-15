@@ -42,6 +42,10 @@ class RoomScreen : Screen {
             mutableStateOf(false)
         }
 
+        var showVictoryDialog by remember {
+            mutableStateOf(false)
+        }
+
         Box(
 
         ) {
@@ -58,6 +62,8 @@ class RoomScreen : Screen {
                     roomName = state.value.roomData.title,
                     playerCount = state.value.players.count(),
                     maxPlayers = state.value.roomData.maxCount,
+                    round = state.value.round,
+                    artistName = state.value.players.firstOrNull{ it.isArtist }?.name ?: "Игрок",
                     gameStatus = state.value.roomData.gameState,
                     isOwner = state.value.owner.id == state.value.player.id,
                     onPlayers = {
@@ -143,15 +149,25 @@ class RoomScreen : Screen {
             )
         }
 
+        if(showVictoryDialog && state.value.roomData.gameState is GameState.End){
+            VictoryDialog(
+                paths = viewModel.completedPaths.value,
+                winnerName = (state.value.roomData.gameState as GameState.End).winnerName,
+                guessedWord = (state.value.roomData.gameState as GameState.End).guessedWord,
+                onContinue = {
+                    showVictoryDialog = false
+                },
+                onDismissRequest = {
+                    showVictoryDialog = false
+                }
+            )
+        }
+
         LaunchedEffect(viewModel.uiEvent) {
             viewModel.uiEvent.collect { event ->
                 when (event as RoomUiEvent) {
-                    is RoomUiEvent.ShowPlayersDialog -> {
-
-                    }
-
-                    is RoomUiEvent.ShowSettingDialog -> {
-
+                    is RoomUiEvent.ShowVictoryDialog -> {
+                        showVictoryDialog = (event as RoomUiEvent.ShowVictoryDialog).showDialog
                     }
 
                     is RoomUiEvent.ShowWordsDialog -> {
@@ -222,11 +238,7 @@ sealed class RoomUiEvent : UiEvent() {
         val showDialog: Boolean
     ) : RoomUiEvent()
 
-    data class ShowSettingDialog(
-        val showDialog: Boolean
-    ) : RoomUiEvent()
-
-    data class ShowPlayersDialog(
+    data class ShowVictoryDialog(
         val showDialog: Boolean
     ) : RoomUiEvent()
 

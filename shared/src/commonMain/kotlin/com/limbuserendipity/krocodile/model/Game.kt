@@ -33,5 +33,11 @@ sealed class GameState{
     @SerialName("run")
     object Run : GameState()
 
+    @Serializable
+    @SerialName("end")
+    data class End(
+        val winnerName: String,
+        val guessedWord: String,
+    ) : GameState()
 
 }

@@ -60,7 +60,8 @@ class WebSocketHandler(
                 messageSender.sendPlayerState(player)
                 messageSender.sendLobbyState(Room.Lobby.players)
             }
-            is PlayerEvent.KickPlayer ->{
+
+            is PlayerEvent.KickPlayer -> {
                 val owner = playerService.getPlayerById(event.player.id) ?: return
                 val kickedPlayer = playerService.getPlayerById(event.kickedPlayerId) ?: return
                 val room = roomService.kickPlayer(owner, kickedPlayer)
@@ -87,7 +88,7 @@ class WebSocketHandler(
             is PlayerEvent.ChangeSettingsRoom -> {
                 val player = playerService.getPlayerById(event.player.id) ?: return
                 val room = roomService.changeSettings(player, event.title, event.maxPlayers)
-                if (room != null){
+                if (room != null) {
                     messageSender.sendRoomState(room)
                 }
                 messageSender.sendLobbyState(Room.Lobby.players)
@@ -130,9 +131,13 @@ class WebSocketHandler(
                 )
 
                 if (gameService.checkGuess(room, event.message)) {
-                    gameService.resetGame(room)
+                    gameService.resetGame(event.player, room)
+                    messageSender.sendRoomState(room)
+                    Thread.sleep(5000)
+                    val artist = gameService.startRound(room)
+                    messageSender.sendPlayerStateToRoom(room)
+                    messageSender.sendWords(artist, getRandomDrawingWords())
                 }
-
                 messageSender.sendRoomState(room)
             }
 

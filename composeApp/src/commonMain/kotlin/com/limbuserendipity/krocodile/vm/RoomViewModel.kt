@@ -66,6 +66,18 @@ class RoomViewModel(
                     _uiEvent.emit(RoomUiEvent.ShowWordsDialog(false))
                 }
 
+                if (state.currentRoom.gameState is GameState.End) {
+                    _uiEvent.emit(
+                        RoomUiEvent.ShowVictoryDialog(
+                            showDialog = true
+                        )
+                    )
+                }
+
+                if (state.currentRoom.gameState is GameState.Starting) {
+                    completedPaths.value = listOf()
+                }
+
             }
         }
     }

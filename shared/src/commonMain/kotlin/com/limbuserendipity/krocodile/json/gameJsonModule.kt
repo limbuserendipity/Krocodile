@@ -49,6 +49,7 @@ val gameJsonModule = SerializersModule {
         subclass(GameState.Wait::class)
         subclass(GameState.Starting::class)
         subclass(GameState.Run::class)
+        subclass(GameState.End::class)
     }
 
     polymorphic(DrawState::class) {

@@ -3,23 +3,9 @@ package com.limbuserendipity.krocodile.component
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +14,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.Res
-import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.baseline_add_24
 import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.play_circle
 import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.settings
 import com.limbuserendipity.krocodile.model.GameState
@@ -40,9 +25,11 @@ fun GameRoomHeader(
     roomName: String,
     playerCount: Int,
     maxPlayers: Int,
+    round: Int,
+    artistName: String,
     gameStatus: GameState,
-    isOwner : Boolean,
-    onPlayers : () -> Unit,
+    isOwner: Boolean,
+    onPlayers: () -> Unit,
     onShowSettings: () -> Unit,
     onStartGame: () -> Unit,
     canStart: Boolean,
@@ -80,10 +67,10 @@ fun GameRoomHeader(
                         Box(
                             modifier = Modifier
                                 .padding(end = 16.dp)
-                                .clickable{
+                                .clickable {
                                     onPlayers()
                                 }
-                        ){
+                        ) {
                             Text(
                                 text = "$playerCount/$maxPlayers игроков",
                                 fontSize = 12.sp,
@@ -99,10 +86,11 @@ fun GameRoomHeader(
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = when(gameStatus){
-                                    GameState.Run -> "Идет"
-                                    GameState.Wait -> "Ожидание"
-                                    GameState.Starting -> "Подготовка"
+                                text = when (gameStatus) {
+                                    GameState.Run -> "Идет $round раунд"
+                                    GameState.Wait -> "Ожидание игроков"
+                                    GameState.Starting -> "$artistName выбирает слово"
+                                    is GameState.End -> "Победитель найден"
                                 },
                                 color = if (gameStatus == GameState.Run) Color.White else MaterialTheme.colorScheme.onSurface,
                                 fontSize = 10.sp,
@@ -114,7 +102,7 @@ fun GameRoomHeader(
             }
 
             Row {
-                if(isOwner){
+                if (isOwner) {
                     IconButton(onClick = onShowSettings) {
                         Icon(
                             painter = painterResource(Res.drawable.settings),
@@ -122,7 +110,7 @@ fun GameRoomHeader(
                         )
                     }
                 }
-                if (gameStatus == GameState.Wait) {
+                if (gameStatus == GameState.Wait || gameStatus == GameState.End) {
                     Button(
                         onClick = onStartGame,
                         enabled = canStart,

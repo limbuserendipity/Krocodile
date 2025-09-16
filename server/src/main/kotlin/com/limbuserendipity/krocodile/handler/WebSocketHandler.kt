@@ -126,7 +126,8 @@ class WebSocketHandler(
                 room.chat.add(
                     ChatMessageData(
                         playerName = event.player.name,
-                        message = event.message
+                        message = event.message,
+                        fire = 0
                     )
                 )
 
@@ -138,6 +139,15 @@ class WebSocketHandler(
                     messageSender.sendPlayerStateToRoom(room)
                     messageSender.sendWords(artist, getRandomDrawingWords())
                 }
+                messageSender.sendRoomState(room)
+            }
+
+            is PlayerEvent.FireChatMessage -> {
+                val room = Room.Lobby.rooms[event.player.roomId] ?: return
+                val message = room.chat.first {
+                    it.message == event.messageData.message && it.playerName == event.messageData.playerName
+                }
+                message.fire++
                 messageSender.sendRoomState(room)
             }
 

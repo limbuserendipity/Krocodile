@@ -63,7 +63,7 @@ class RoomScreen : Screen {
                     playerCount = state.value.players.count(),
                     maxPlayers = state.value.roomData.maxCount,
                     round = state.value.round,
-                    artistName = state.value.players.firstOrNull{ it.isArtist }?.name ?: "Игрок",
+                    artistName = state.value.players.firstOrNull { it.isArtist }?.name ?: "Игрок",
                     gameStatus = state.value.roomData.gameState,
                     isOwner = state.value.owner.id == state.value.player.id,
                     onPlayers = {
@@ -80,6 +80,7 @@ class RoomScreen : Screen {
 
                 DrawingCanvas(
                     paddingValues = PaddingValues(24.dp),
+                    isArtist = state.value.isArtist,
                     currentPath = currentPath.value,
                     completedPaths = completedPaths.value,
                     usersPath = usersPath.value.values.toList(),
@@ -98,9 +99,18 @@ class RoomScreen : Screen {
                 )
             }
 
-            ChatSection(
+            var isChatExpanded by remember { mutableStateOf(false) }
+
+            ExpandableChatFab(
                 messages = state.value.chat,
-                modifier = Modifier.align(Alignment.BottomStart)
+                isExpanded = isChatExpanded,
+                onToggle = { isChatExpanded = !isChatExpanded },
+                onFireMessage = { message ->
+                    if(state.value.player.isArtist){
+                        viewModel.sendFireMessage(message)
+                    }
+                },
+                modifier = Modifier.align(Alignment.BottomEnd)
             )
 
         }
@@ -149,7 +159,7 @@ class RoomScreen : Screen {
             )
         }
 
-        if(showVictoryDialog && state.value.roomData.gameState is GameState.End){
+        if (showVictoryDialog && state.value.roomData.gameState is GameState.End) {
             VictoryDialog(
                 paths = viewModel.completedPaths.value,
                 winnerName = (state.value.roomData.gameState as GameState.End).winnerName,

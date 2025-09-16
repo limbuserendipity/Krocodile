@@ -50,34 +50,87 @@ fun ToolbarInput(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceAround,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp)
-            .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.medium)
-            .padding(8.dp)
+        horizontalArrangement = Arrangement.Start,
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(vertical = 8.dp)
-        ) {
-            colors.forEach { color ->
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(color)
-                        .border(
-                            width = if (color == selectedColor) 3.dp else 2.dp,
-                            color = if (color == selectedColor) Color(0xFF212121) else Color(0xFFE0E0E0),
-                            shape = CircleShape
-                        )
-                        .clickable { onColorSelected(color) }
-                )
+        Box(
+            modifier = Modifier
+                .padding(24.dp)
+                .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.medium)
+                .padding(12.dp)
+        ){
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+            ) {
+                colors.forEach { color ->
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(color)
+                            .border(
+                                width = if (color == selectedColor) 3.dp else 2.dp,
+                                color = if (color == selectedColor) Color(0xFF212121) else Color(0xFFE0E0E0),
+                                shape = CircleShape
+                            )
+                            .clickable { onColorSelected(color) }
+                    )
+                }
+
+                8.dp.Space()
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = it }
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.secondaryContainer)
+                                .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                                .clickable { expanded = true }
+                                .menuAnchor(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = brushSize.toString(),
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                fontSize = 14.sp
+                            )
+                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                expanded = expanded,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                            )
+                        }
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            brushSizes.forEach { size ->
+                                DropdownMenuItem(
+                                    text = { Text(size.toString()) },
+                                    onClick = {
+                                        onBrushSizeChanged(size)
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
             }
+
         }
 
-        Spacer(modifier = Modifier.size(16.dp))
+        8.dp.Space()
 
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -107,52 +160,8 @@ fun ToolbarInput(
             )
         }
 
-        Spacer(modifier = Modifier.size(16.dp))
+        4.dp.Space()
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = it }
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
-                        .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                        .clickable { expanded = true }
-                        .menuAnchor(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = brushSize.toString(),
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                        fontSize = 14.sp
-                    )
-                    ExposedDropdownMenuDefaults.TrailingIcon(
-                        expanded = expanded,
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                    )
-                }
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    brushSizes.forEach { size ->
-                        DropdownMenuItem(
-                            text = { Text(size.toString()) },
-                            onClick = {
-                                onBrushSizeChanged(size)
-                                expanded = false
-                            }
-                        )
-                    }
-                }
-            }
-        }
     }
 }
 

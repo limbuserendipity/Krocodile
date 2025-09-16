@@ -84,7 +84,7 @@ class RoomService {
 
     fun changeSettings(player: Player, title: String, maxPlayers: Int): Room.GameRoom? {
         val room = rooms[player.roomId] ?: return null
-        if(player.id == room.owner.id){
+        if (player.id == room.owner.id) {
             room.title = title
             room.maxPlayers = maxPlayers
         }

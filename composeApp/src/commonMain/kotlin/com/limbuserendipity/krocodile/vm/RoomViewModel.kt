@@ -307,6 +307,12 @@ class RoomViewModel(
         }
     }
 
+    fun sendFireMessage(messageData: ChatMessageData) {
+        viewModelScope.launch {
+            client.fireMessage(messageData)
+        }
+    }
+
 }
 
 data class PathInfo(

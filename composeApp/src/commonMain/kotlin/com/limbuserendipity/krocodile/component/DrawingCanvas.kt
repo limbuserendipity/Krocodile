@@ -32,6 +32,7 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun DrawingCanvas(
     paddingValues: PaddingValues,
+    isArtist : Boolean,
     currentPath: PathInfo,
     completedPaths: List<PathInfo>,
     usersPath: List<PathInfo>,
@@ -69,8 +70,18 @@ fun DrawingCanvas(
                 }
             }
 
+            val drawingModifier = if(isArtist) Modifier
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = onDragStart,
+                        onDrag = onDrag,
+                        onDragEnd = onDragEnd
+                    )
+                }
+            else Modifier
+
             Canvas(
-                modifier = Modifier
+                modifier = drawingModifier
                     .fillMaxSize()
                     .pointerInput(Unit) {
                         detectDragGestures(

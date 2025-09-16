@@ -18,7 +18,7 @@ fun InputSection(
     }
 
     var brushSize by remember {
-        mutableStateOf(12)
+        mutableStateOf(16)
     }
 
     if (isArtist) {

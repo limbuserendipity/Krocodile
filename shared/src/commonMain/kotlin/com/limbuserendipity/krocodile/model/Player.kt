@@ -74,6 +74,13 @@ sealed class PlayerEvent {
     ) : PlayerEvent()
 
     @Serializable
+    @SerialName("fire_chat_message")
+    data class FireChatMessage(
+        val player: Player,
+        val messageData: ChatMessageData
+    ) : PlayerEvent()
+
+    @Serializable
     @SerialName("drawing")
     data class Drawing(
         val player: Player,
@@ -95,5 +102,6 @@ data class PlayerData(
 @SerialName("chat_message_data")
 data class ChatMessageData(
     val playerName: String,
-    val message: String
+    val message: String,
+    var fire: Int
 )

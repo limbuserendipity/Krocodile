@@ -2,6 +2,7 @@ package com.limbuserendipity.krocodile.client.service
 
 import com.limbuserendipity.krocodile.client.network.WebSocketClient
 import com.limbuserendipity.krocodile.client.state.StateManager
+import com.limbuserendipity.krocodile.model.ChatMessageData
 import com.limbuserendipity.krocodile.model.DrawingEvent
 import com.limbuserendipity.krocodile.model.GameMessage
 import com.limbuserendipity.krocodile.model.PlayerEvent
@@ -113,6 +114,17 @@ class MessageService(
                 player = player,
                 title = title,
                 maxPlayers = maxPlayers
+            )
+        )
+        return webSocketClient.sendMessage(message)
+    }
+
+    suspend fun sendFireMessage(messageData: ChatMessageData): Result<Unit> {
+        val player = stateManager.state.value.player ?: return Result.failure(IllegalStateException("No player"))
+        val message = GameMessage.PlayerMessage(
+            playerEvent = PlayerEvent.FireChatMessage(
+                player = player,
+                messageData = messageData
             )
         )
         return webSocketClient.sendMessage(message)

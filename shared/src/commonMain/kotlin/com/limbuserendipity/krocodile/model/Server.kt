@@ -44,6 +44,11 @@ sealed class ServerResult {
         val drawingEvent: DrawingEvent
     ) : ServerResult()
 
+    @Serializable
+    @SerialName("notification")
+    data class Notification(
+        val message: NotificationMessage
+    ) : ServerResult()
 
 }
 

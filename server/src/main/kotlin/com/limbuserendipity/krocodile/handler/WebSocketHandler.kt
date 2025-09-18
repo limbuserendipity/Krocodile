@@ -74,6 +74,7 @@ class WebSocketHandler(
                 Room.Lobby.players[kickedPlayer.id] = kickedPlayer
                 messageSender.sendPlayerState(kickedPlayer)
                 messageSender.sendLobbyState(Room.Lobby.players)
+                messageSender.sendNotification(kickedPlayer, "Вас кикнули", NotificationType.INFO)
             }
 
             is PlayerEvent.SetOwner -> {
@@ -83,6 +84,7 @@ class WebSocketHandler(
                 if (room != null) {
                     messageSender.sendRoomState(room)
                 }
+                messageSender.sendNotification(newOwner, "Теперь вы главный", NotificationType.SUCCESS)
             }
 
             is PlayerEvent.ChangeSettingsRoom -> {

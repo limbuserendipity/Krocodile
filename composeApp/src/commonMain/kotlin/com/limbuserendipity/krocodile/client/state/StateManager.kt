@@ -20,8 +20,7 @@ class StateManager {
         println("currentRoom = ${newState.currentRoom}")
         println("lobbyRooms = ${newState.lobbyRooms}")
         println("isArtist = ${newState.isArtist}")
-        println("errorMessage = ${newState.errorMessage}")
-        println("serverMessage = ${newState.serverMessage}")
+        println("serverMessage = ${newState.notification?.message}")
         _state.value = newState
     }
 
@@ -88,7 +87,20 @@ class StateManager {
 
     fun updateErrorMessage(errorMessage: String) {
         updateState(
-            _state.value.copy(errorMessage = errorMessage)
+            _state.value.copy(
+                notification = NotificationMessage(
+                    message = errorMessage,
+                    type = NotificationType.ERROR
+                )
+            )
+        )
+    }
+
+    fun updateNotification(notificationMessage: NotificationMessage?) {
+        updateState(
+            _state.value.copy(
+                notification = notificationMessage
+            )
         )
     }
 

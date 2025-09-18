@@ -8,6 +8,7 @@ import com.limbuserendipity.krocodile.client.state.ConnectionStatus
 import com.limbuserendipity.krocodile.client.state.StateManager
 import com.limbuserendipity.krocodile.model.ChatMessageData
 import com.limbuserendipity.krocodile.model.DrawingEvent
+import com.limbuserendipity.krocodile.model.NotificationMessage
 import io.ktor.client.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,10 +32,10 @@ class GameClient(
         initialValue = ConnectionStatus.Disconnected
     )
 
-    val errorMessage : SharedFlow<String> = stateManager.state.map { it.errorMessage }.shareIn(
+    val notification: StateFlow<NotificationMessage?> = stateManager.state.map { it.notification }.stateIn(
         scope = CoroutineScope(Dispatchers.Main),
         started = SharingStarted.WhileSubscribed(5000),
-        replay = 1
+        initialValue = null
     )
 
     suspend fun connect(): Result<Unit> {
@@ -89,6 +90,10 @@ class GameClient(
 
     suspend fun fireMessage(messageData: ChatMessageData): Result<Unit> {
         return messageService.sendFireMessage(messageData)
+    }
+
+    suspend fun completeNotification(){
+        stateManager.updateNotification(null)
     }
 
 }

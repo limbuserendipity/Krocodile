@@ -8,20 +8,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.limbuserendipity.krocodile.component.*
 import com.limbuserendipity.krocodile.model.*
 import com.limbuserendipity.krocodile.vm.RoomViewModel
-import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
-class RoomScreen : Screen, KoinComponent {
+class RoomScreen(val viewModel: RoomViewModel) : BaseScreen(viewModel), KoinComponent {
     @Composable
     override fun Content() {
-        val viewModel: RoomViewModel = koinViewModel()
+
+        super.Content()
 
         val state = viewModel.uiState.collectAsState()
 
@@ -188,7 +187,8 @@ class RoomScreen : Screen, KoinComponent {
                     is RoomUiEvent.NavigateToLobby -> {
                         navigator.push(LobbyScreen(get()))
                     }
-                    else ->{
+
+                    else -> {
 
                     }
                 }

@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.limbuserendipity.krocodile.client.GameClient
 import com.limbuserendipity.krocodile.client.state.ConnectionStatus
+import com.limbuserendipity.krocodile.model.NotificationMessage
+import com.limbuserendipity.krocodile.model.NotificationType
 import com.limbuserendipity.krocodile.screen.UiEvent
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -19,7 +21,7 @@ open class BaseViewModel(
 
     init {
         observeConnectionStatus()
-        observeErrorMessage()
+        observeNotification()
     }
 
     open fun observeConnectionStatus() {
@@ -33,18 +35,29 @@ open class BaseViewModel(
                     ConnectionStatus.Connecting -> {}
                     ConnectionStatus.Connected -> {}
                     ConnectionStatus.Error -> {
-                        _uiEvent.emit(UiEvent.ShowError("Error"))
+                        _uiEvent.emit(
+                            UiEvent.ShowMessage(
+                                message = NotificationMessage(
+                                    message = "Connection Error",
+                                    type = NotificationType.ERROR
+                                )
+                            )
+                        )
                     }
                 }
             }
         }
     }
 
-    private fun observeErrorMessage() {
+    private fun observeNotification() {
         viewModelScope.launch {
-            client.errorMessage.collect { message ->
-                _uiEvent.emit(UiEvent.ShowError(message))
+            client.notification.collect { message ->
+                if (message != null) {
+                    _uiEvent.emit(UiEvent.ShowMessage(message))
+                    client.completeNotification()
+                }
             }
         }
     }
+
 }

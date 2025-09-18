@@ -7,12 +7,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.limbuserendipity.krocodile.component.LobbyHeader
@@ -29,15 +27,13 @@ class LobbyScreen(val viewModel: LobbyViewModel) : BaseScreen(viewModel), KoinCo
     @Composable
     override fun Content() {
 
+        super.Content()
+
         val navigator = LocalNavigator.currentOrThrow
 
         val state = viewModel.uiState.collectAsState()
 
         var showDialog by remember {
-            mutableStateOf(false)
-        }
-
-        var showErrorDialog by remember {
             mutableStateOf(false)
         }
 
@@ -68,7 +64,7 @@ class LobbyScreen(val viewModel: LobbyViewModel) : BaseScreen(viewModel), KoinCo
             viewModel.uiEvent.collect { event ->
                 when (event) {
                     is LobbyUiEvent.NavigateToRoom -> {
-                        navigator.push(RoomScreen())
+                        navigator.push(RoomScreen(get()))
                     }
 
                     is LobbyUiEvent.ShowCreateRoomDialog -> {
@@ -77,10 +73,6 @@ class LobbyScreen(val viewModel: LobbyViewModel) : BaseScreen(viewModel), KoinCo
 
                     is UiEvent.NavigateTo -> {
                         navigator.push(SigInScreen(get()))
-                    }
-
-                    is UiEvent.ShowError -> {
-                        showErrorDialog = true
                     }
 
                     else -> {
@@ -101,23 +93,8 @@ class LobbyScreen(val viewModel: LobbyViewModel) : BaseScreen(viewModel), KoinCo
                         title = title,
                         maxPlayers = maxPlayers
                     )
+                    showDialog = false
                 })
-        }
-
-        if (showErrorDialog) {
-            Dialog(
-                onDismissRequest = {
-                    showErrorDialog = false
-                },
-            ) {
-
-                Box() {
-                    Text(
-                        text = "Error"
-                    )
-                }
-
-            }
         }
 
     }

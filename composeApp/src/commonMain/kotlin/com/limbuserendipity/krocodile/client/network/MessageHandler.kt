@@ -55,6 +55,11 @@ class MessageHandler(
                     is ServerResult.DrawingState -> {
                         stateManager.updateDrawingEvent(drawingEvent = data.drawingEvent)
                     }
+
+                    is ServerResult.Notification -> {
+                        stateManager.updateNotification(data.message)
+                    }
+
                 }
             }
 

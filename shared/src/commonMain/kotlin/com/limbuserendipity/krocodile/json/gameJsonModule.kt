@@ -22,6 +22,7 @@ val gameJsonModule = SerializersModule {
         subclass(ServerResult.PlayerState::class)
         subclass(ServerResult.Words::class)
         subclass(ServerResult.DrawingState::class)
+        subclass(ServerResult.Notification::class)
     }
 
     polymorphic(PlayerEvent::class) {

@@ -126,4 +126,18 @@ class MessageSender(
         connectionManager.sendToPlayer(playerId = player.id, message = gameMessage, json = json)
     }
 
+    suspend fun sendNotification(player: Player, message: String, type: NotificationType) {
+
+        val gameMessage = GameMessage.ServerMessage(
+            serverStatus = ServerStatus.Success(
+                result = ServerResult.Notification(
+                    message = NotificationMessage(message = message, type = type)
+                )
+            )
+        )
+
+        connectionManager.sendToPlayer(playerId = player.id, message = gameMessage, json = json)
+
+    }
+
 }

@@ -10,6 +10,7 @@ import androidx.compose.ui.window.Dialog
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.limbuserendipity.krocodile.component.SigInForm
+import com.limbuserendipity.krocodile.model.NotificationMessage
 import com.limbuserendipity.krocodile.vm.SigInViewModel
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -66,8 +67,7 @@ sealed class SigInUiEvent : UiEvent() {
 }
 
 sealed class UiEvent {
-    data class ShowError(val message: String) : UiEvent()
-    data class ShowMessage(val message: String) : UiEvent()
+    data class ShowMessage(val message: NotificationMessage) : UiEvent()
     object NavigateTo : UiEvent()
 
     object Disconnect : UiEvent()

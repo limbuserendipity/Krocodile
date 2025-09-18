@@ -11,10 +11,7 @@ import com.limbuserendipity.krocodile.model.DrawingEvent
 import io.ktor.client.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.serialization.json.Json
 
 class GameClient(
@@ -32,6 +29,12 @@ class GameClient(
         scope = CoroutineScope(Dispatchers.Main),
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = ConnectionStatus.Disconnected
+    )
+
+    val errorMessage : SharedFlow<String> = stateManager.state.map { it.errorMessage }.shareIn(
+        scope = CoroutineScope(Dispatchers.Main),
+        started = SharingStarted.WhileSubscribed(5000),
+        replay = 1
     )
 
     suspend fun connect(): Result<Unit> {

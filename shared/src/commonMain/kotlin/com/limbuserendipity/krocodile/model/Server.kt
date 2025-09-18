@@ -22,7 +22,7 @@ sealed class ServerResult {
         var owner: PlayerData,
         var artist: PlayerData,
         val chat: List<ChatMessageData>,
-        val round : Int
+        val round: Int
     ) : ServerResult()
 
     @Serializable
@@ -56,7 +56,7 @@ sealed class ServerStatus {
 
     @Serializable
     @SerialName("error")
-    class Error : ServerStatus()
+    data class Error(val message: String) : ServerStatus()
 
 }
 

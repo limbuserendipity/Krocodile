@@ -59,7 +59,7 @@ class MessageHandler(
             }
 
             is ServerStatus.Error -> {
-                // Handle error
+                stateManager.updateErrorMessage(result.message)
             }
         }
     }

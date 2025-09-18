@@ -1,22 +1,21 @@
 package com.limbuserendipity.krocodile.vm
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.limbuserendipity.krocodile.client.GameClient
+import com.limbuserendipity.krocodile.client.state.ConnectionStatus
 import com.limbuserendipity.krocodile.screen.SigInUiEvent
-import com.limbuserendipity.krocodile.screen.UiEvent
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import com.limbuserendipity.krocodile.screen.SigInUiState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 
 class SigInViewModel(
-    val client: GameClient
-) : ViewModel() {
+    client: GameClient
+) : BaseViewModel(client) {
 
-    private val _uiEvent = MutableSharedFlow<UiEvent>()
-    val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
+    private val _uiState = MutableStateFlow<SigInUiState>(SigInUiState())
+    val uiState = _uiState.asStateFlow()
 
 
     init {
@@ -33,19 +32,40 @@ class SigInViewModel(
         }
     }
 
+    override fun observeConnectionStatus() {
+        viewModelScope.launch {
+            client.connectionStatus.collect { status ->
+                if (status == ConnectionStatus.Connected) {
+                    if (uiState.value.name.isNotEmpty()) {
+                        client.createPlayer(uiState.value.name)
+                        _uiState.value = SigInUiState()
+                    }
+                }
+            }
+        }
+        super.observeConnectionStatus()
+    }
+
+    fun ipAddressUpdate(ip: String) {
+        _uiState.value = _uiState.value.copy(
+            ip = ip
+        )
+    }
+
+    fun usernameUpdate(name: String) {
+        _uiState.value = _uiState.value.copy(
+            name = name
+        )
+    }
+
     fun connectToServer() {
         viewModelScope.launch {
             client.connect()
         }
     }
 
-    fun sign(username: String) {
-
+    fun sign() {
         connectToServer()
-
-        viewModelScope.launch {
-            client.createPlayer(username)
-        }
     }
 
 }

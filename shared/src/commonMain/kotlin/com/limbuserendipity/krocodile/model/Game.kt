@@ -21,7 +21,7 @@ sealed class GameMessage {
 
 @Serializable
 @Polymorphic
-sealed class GameState{
+sealed class GameState {
     @Serializable
     @SerialName("wait")
     object Wait : GameState()
@@ -29,6 +29,7 @@ sealed class GameState{
     @Serializable
     @SerialName("starting")
     object Starting : GameState()
+
     @Serializable
     @SerialName("run")
     object Run : GameState()

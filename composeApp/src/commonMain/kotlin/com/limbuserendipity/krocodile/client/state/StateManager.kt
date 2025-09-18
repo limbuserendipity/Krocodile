@@ -20,6 +20,8 @@ class StateManager {
         println("currentRoom = ${newState.currentRoom}")
         println("lobbyRooms = ${newState.lobbyRooms}")
         println("isArtist = ${newState.isArtist}")
+        println("errorMessage = ${newState.errorMessage}")
+        println("serverMessage = ${newState.serverMessage}")
         _state.value = newState
     }
 
@@ -74,4 +76,20 @@ class StateManager {
         currentChat.add(message)
         _state.value = _state.value.copy(chatMessages = currentChat)
     }
+
+    fun handleServerDisconnect() {
+        updateConnectionStatus(ConnectionStatus.Disconnected)
+        resetState()
+    }
+
+    fun resetState() {
+        updateState(ClientState())
+    }
+
+    fun updateErrorMessage(errorMessage: String) {
+        updateState(
+            _state.value.copy(errorMessage = errorMessage)
+        )
+    }
+
 }

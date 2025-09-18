@@ -15,9 +15,10 @@ import com.limbuserendipity.krocodile.component.*
 import com.limbuserendipity.krocodile.model.*
 import com.limbuserendipity.krocodile.vm.RoomViewModel
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
-
-class RoomScreen : Screen {
+class RoomScreen : Screen, KoinComponent {
     @Composable
     override fun Content() {
         val viewModel: RoomViewModel = koinViewModel()
@@ -106,7 +107,7 @@ class RoomScreen : Screen {
                 isExpanded = isChatExpanded,
                 onToggle = { isChatExpanded = !isChatExpanded },
                 onFireMessage = { message ->
-                    if(state.value.player.isArtist){
+                    if (state.value.player.isArtist) {
                         viewModel.sendFireMessage(message)
                     }
                 },
@@ -175,17 +176,20 @@ class RoomScreen : Screen {
 
         LaunchedEffect(viewModel.uiEvent) {
             viewModel.uiEvent.collect { event ->
-                when (event as RoomUiEvent) {
+                when (event) {
                     is RoomUiEvent.ShowVictoryDialog -> {
-                        showVictoryDialog = (event as RoomUiEvent.ShowVictoryDialog).showDialog
+                        showVictoryDialog = event.showDialog
                     }
 
                     is RoomUiEvent.ShowWordsDialog -> {
-                        showWordsDialog = (event as RoomUiEvent.ShowWordsDialog).showDialog
+                        showWordsDialog = event.showDialog
                     }
 
                     is RoomUiEvent.NavigateToLobby -> {
-                        navigator.push(LobbyScreen())
+                        navigator.push(LobbyScreen(get()))
+                    }
+                    else ->{
+
                     }
                 }
 

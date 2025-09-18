@@ -43,27 +43,35 @@ class WebSocketClient(
     }
 
     private suspend fun listenForMessages() {
-        session?.incoming?.consumeEach { frame ->
-            when (frame) {
-                is Frame.Text -> {
-                    val text = frame.readText()
-                    try {
-                        val message = json.decodeFromString<GameMessage>(text)
-                        messageHandler.handleMessage(message)
-                    } catch (e: Exception) {
-
+        try {
+            session?.incoming?.consumeEach { frame ->
+                when (frame) {
+                    is Frame.Text -> {
+                        val text = frame.readText()
+                        try {
+                            val message = json.decodeFromString<GameMessage>(text)
+                            messageHandler.handleMessage(message)
+                        } catch (e: Exception) {
+                            stateManager.updateConnectionStatus(ConnectionStatus.Error)
+                        }
                     }
-                }
 
-                else -> Unit
+                    is Frame.Close -> {
+                        disconnect()
+                    }
+
+                    else -> Unit
+                }
             }
+        } catch (e: Exception) {
+            disconnect()
         }
     }
 
     suspend fun disconnect() {
         session?.close()
         session = null
-        stateManager.updateConnectionStatus(ConnectionStatus.Disconnected)
+        stateManager.handleServerDisconnect()
     }
 
     suspend fun sendMessage(message: GameMessage): Result<Unit> {

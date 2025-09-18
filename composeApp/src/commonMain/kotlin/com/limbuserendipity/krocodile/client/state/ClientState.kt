@@ -14,7 +14,9 @@ data class ClientState(
     val owner: PlayerData? = null,
     val artist: PlayerData? = null,
     val round: Int = 0,
-    val drawingEvent: DrawingEvent? = null
+    val drawingEvent: DrawingEvent? = null,
+    val errorMessage: String = "",
+    val serverMessage: String = ""
 )
 
 enum class ConnectionStatus {

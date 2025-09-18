@@ -116,4 +116,14 @@ class MessageSender(
             }
         }
     }
+
+    suspend fun sendErrorMessage(player: Player, message: String) {
+        val gameMessage = GameMessage.ServerMessage(
+            serverStatus = ServerStatus.Error(
+                message = message
+            )
+        )
+        connectionManager.sendToPlayer(playerId = player.id, message = gameMessage, json = json)
+    }
+
 }

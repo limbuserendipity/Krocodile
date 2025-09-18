@@ -6,27 +6,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.copy
 import androidx.compose.ui.input.pointer.PointerInputChange
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.limbuserendipity.krocodile.client.GameClient
 import com.limbuserendipity.krocodile.model.*
 import com.limbuserendipity.krocodile.screen.RoomUiEvent
 import com.limbuserendipity.krocodile.screen.RoomUiState
-import com.limbuserendipity.krocodile.screen.UiEvent
 import com.limbuserendipity.krocodile.screen.roomUiStatePlaceHolder
 import com.limbuserendipity.krocodile.theme.CanvasSurface
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class RoomViewModel(
-    val client: GameClient
-) : ViewModel() {
+    client: GameClient
+) : BaseViewModel(client) {
 
     private val _uiState = MutableStateFlow(roomUiStatePlaceHolder())
     val uiState = _uiState.asStateFlow()
-    private val _uiEvent = MutableSharedFlow<UiEvent>()
-    val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
-
     val currentPath: MutableStateFlow<PathInfo> = MutableStateFlow(pathInfoPlaceHolder())
 
     val completedPaths: MutableStateFlow<List<PathInfo>> = MutableStateFlow(listOf())

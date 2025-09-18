@@ -1,23 +1,20 @@
 package com.limbuserendipity.krocodile.vm
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.limbuserendipity.krocodile.client.GameClient
 import com.limbuserendipity.krocodile.screen.LobbyUiEvent
 import com.limbuserendipity.krocodile.screen.LobbyUiState
-import com.limbuserendipity.krocodile.screen.UiEvent
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class LobbyViewModel(
-    val client: GameClient
-) : ViewModel() {
+    client: GameClient
+) : BaseViewModel(client) {
 
 
     private val _uiState = MutableStateFlow<LobbyUiState>(LobbyUiState())
     val uiState = _uiState.asStateFlow()
-    private val _uiEvent = MutableSharedFlow<UiEvent>()
-    val uiEvent: SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
     init {
         observeClientState()
@@ -60,6 +57,5 @@ class LobbyViewModel(
             client.joinRoom(roomId)
         }
     }
-
 
 }

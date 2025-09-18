@@ -7,11 +7,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.screen.Screen
+import androidx.compose.ui.window.Dialog
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.limbuserendipity.krocodile.component.LobbyHeader
@@ -19,20 +20,24 @@ import com.limbuserendipity.krocodile.component.RoomCard
 import com.limbuserendipity.krocodile.component.RoomSettingsDialog
 import com.limbuserendipity.krocodile.model.RoomData
 import com.limbuserendipity.krocodile.vm.LobbyViewModel
-import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
-class LobbyScreen() : Screen {
+class LobbyScreen(val viewModel: LobbyViewModel) : BaseScreen(viewModel), KoinComponent {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
-        val viewModel: LobbyViewModel = koinViewModel()
 
         val navigator = LocalNavigator.currentOrThrow
 
         val state = viewModel.uiState.collectAsState()
 
         var showDialog by remember {
+            mutableStateOf(false)
+        }
+
+        var showErrorDialog by remember {
             mutableStateOf(false)
         }
 
@@ -61,13 +66,25 @@ class LobbyScreen() : Screen {
 
         LaunchedEffect(viewModel.uiEvent) {
             viewModel.uiEvent.collect { event ->
-                when (event as LobbyUiEvent) {
+                when (event) {
                     is LobbyUiEvent.NavigateToRoom -> {
                         navigator.push(RoomScreen())
                     }
 
                     is LobbyUiEvent.ShowCreateRoomDialog -> {
-                        showDialog = (event as LobbyUiEvent.ShowCreateRoomDialog).showDialog
+                        showDialog = event.showDialog
+                    }
+
+                    is UiEvent.NavigateTo -> {
+                        navigator.push(SigInScreen(get()))
+                    }
+
+                    is UiEvent.ShowError -> {
+                        showErrorDialog = true
+                    }
+
+                    else -> {
+
                     }
                 }
             }
@@ -86,6 +103,23 @@ class LobbyScreen() : Screen {
                     )
                 })
         }
+
+        if (showErrorDialog) {
+            Dialog(
+                onDismissRequest = {
+                    showErrorDialog = false
+                },
+            ) {
+
+                Box() {
+                    Text(
+                        text = "Error"
+                    )
+                }
+
+            }
+        }
+
     }
 }
 

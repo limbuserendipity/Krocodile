@@ -14,12 +14,12 @@ sealed class Room {
         val id: Long,
         var title: String,
         val players: ConcurrentHashMap<String, Player>,
-        var maxPlayers: Int,
         var owner: Player,
         var artist: Player,
         var state: GameState,
         var word: String,
         val chat: MutableList<ChatMessageData>,
-        var round : Int
+        var round : Int,
+        var settings: GameRoomSettings
     ) : Room()
 }

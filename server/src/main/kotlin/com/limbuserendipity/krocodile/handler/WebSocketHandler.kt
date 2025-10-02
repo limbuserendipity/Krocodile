@@ -1,5 +1,4 @@
 import com.limbuserendipity.krocodile.model.*
-import com.limbuserendipity.krocodile.util.getRandomDrawingWords
 import io.ktor.server.websocket.*
 import kotlinx.serialization.json.Json
 
@@ -38,7 +37,7 @@ class WebSocketHandler(
 
             is PlayerEvent.NewRoom -> {
                 val player = playerService.getPlayerById(event.player.id) ?: return
-                val room = roomService.createRoom(player, event.title, event.maxPlayers)
+                val room = roomService.createRoom(player, event.title, event.settings)
                 player.roomId = room.id
                 Room.Lobby.rooms[room.id] = room
                 Room.Lobby.players.remove(player.id)
@@ -89,7 +88,7 @@ class WebSocketHandler(
 
             is PlayerEvent.ChangeSettingsRoom -> {
                 val player = playerService.getPlayerById(event.player.id) ?: return
-                val room = roomService.changeSettings(player, event.title, event.maxPlayers)
+                val room = roomService.changeSettings(player, event.title, settings = event.settings)
                 if (room != null) {
                     messageSender.sendRoomState(room)
                 }
@@ -107,20 +106,16 @@ class WebSocketHandler(
             }
 
             is PlayerEvent.StartGame -> {
-                val room = roomService.findRoomById(event.player.roomId) ?: return
-                val artist = gameService.startRound(room)
 
-                messageSender.sendPlayerStateToRoom(room)
-                messageSender.sendWords(artist, getRandomDrawingWords())
-                messageSender.sendRoomState(room)
+                val room = roomService.findRoomById(event.player.roomId) ?: return
+                gameService.startingGame(room)
+
             }
 
             is PlayerEvent.Word -> {
                 val room = Room.Lobby.rooms[event.player.roomId] ?: return
                 room.word = event.word
-                room.state = GameState.Run
-                messageSender.sendRoomState(room)
-                messageSender.sendWords(room.artist, listOf())
+                gameService.selectWord(room, event.word)
             }
 
             is PlayerEvent.ChatMessage -> {
@@ -133,14 +128,8 @@ class WebSocketHandler(
                     )
                 )
 
-                if (gameService.checkGuess(room, event.message)) {
-                    gameService.resetGame(event.player, room)
-                    messageSender.sendRoomState(room)
-                    Thread.sleep(5000)
-                    val artist = gameService.startRound(room)
-                    messageSender.sendPlayerStateToRoom(room)
-                    messageSender.sendWords(artist, getRandomDrawingWords())
-                }
+                gameService.checkGuess(room, event.player, event.message)
+
                 messageSender.sendRoomState(room)
             }
 

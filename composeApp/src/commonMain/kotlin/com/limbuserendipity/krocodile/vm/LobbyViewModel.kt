@@ -2,6 +2,7 @@ package com.limbuserendipity.krocodile.vm
 
 import androidx.lifecycle.viewModelScope
 import com.limbuserendipity.krocodile.client.GameClient
+import com.limbuserendipity.krocodile.model.GameRoomSettings
 import com.limbuserendipity.krocodile.screen.LobbyUiEvent
 import com.limbuserendipity.krocodile.screen.LobbyUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,10 +46,10 @@ class LobbyViewModel(
 
     fun createRoom(
         title: String,
-        maxPlayers: Int
+        settings: GameRoomSettings
     ) {
         viewModelScope.launch {
-            client.createRoom(title, maxPlayers)
+            client.createRoom(title, settings)
         }
     }
 

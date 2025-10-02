@@ -64,4 +64,10 @@ val gameJsonModule = SerializersModule {
         subclass(ToolType.Clear::class)
     }
 
+    polymorphic(EndVariant::class) {
+        subclass(EndVariant.GuessedWord::class)
+        subclass(EndVariant.FailedWord::class)
+        subclass(EndVariant.GameEnd::class)
+    }
+
 }

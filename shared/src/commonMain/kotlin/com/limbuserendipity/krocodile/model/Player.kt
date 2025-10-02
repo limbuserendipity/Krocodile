@@ -18,7 +18,7 @@ sealed class PlayerEvent {
 
     @Serializable
     @SerialName("new_room")
-    data class NewRoom(val player: Player, val title: String, val maxPlayers: Int) : PlayerEvent()
+    data class NewRoom(val player: Player, val title: String, val settings: GameRoomSettings) : PlayerEvent()
 
     @Serializable
     @SerialName("leave_room")
@@ -50,7 +50,7 @@ sealed class PlayerEvent {
     data class ChangeSettingsRoom(
         val player: Player,
         val title: String,
-        val maxPlayers: Int
+        val settings: GameRoomSettings
     ) : PlayerEvent()
 
     @Serializable

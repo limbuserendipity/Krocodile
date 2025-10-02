@@ -1,4 +1,5 @@
 import com.limbuserendipity.krocodile.generateUniqueRandom
+import com.limbuserendipity.krocodile.model.GameRoomSettings
 import com.limbuserendipity.krocodile.model.GameState
 import com.limbuserendipity.krocodile.model.Player
 import com.limbuserendipity.krocodile.model.Room
@@ -7,18 +8,18 @@ import java.util.concurrent.ConcurrentHashMap
 class RoomService {
     private val rooms = ConcurrentHashMap<Long, Room.GameRoom>()
 
-    fun createRoom(owner: Player, title: String, maxPlayers: Int): Room.GameRoom {
+    fun createRoom(owner: Player, title: String, settings: GameRoomSettings): Room.GameRoom {
         val room = Room.GameRoom(
             id = generateUniqueRandom(),
             title = title,
             players = ConcurrentHashMap(),
-            maxPlayers = maxPlayers,
             owner = owner,
             artist = owner,
             state = GameState.Wait,
             word = "",
             chat = mutableListOf(),
-            round = 0
+            round = 0,
+            settings = settings
         )
         room.players.put(owner.id, owner)
         rooms[room.id] = room
@@ -82,11 +83,11 @@ class RoomService {
         return null
     }
 
-    fun changeSettings(player: Player, title: String, maxPlayers: Int): Room.GameRoom? {
+    fun changeSettings(player: Player, title: String, settings: GameRoomSettings): Room.GameRoom? {
         val room = rooms[player.roomId] ?: return null
         if (player.id == room.owner.id) {
             room.title = title
-            room.maxPlayers = maxPlayers
+            room.settings = settings
         }
         return room
     }

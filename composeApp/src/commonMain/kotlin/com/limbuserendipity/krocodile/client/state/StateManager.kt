@@ -10,17 +10,19 @@ class StateManager {
     val state: StateFlow<ClientState> = _state.asStateFlow()
 
     private fun updateState(newState: ClientState) {
-        println("artist = ${newState.artist}")
-        println("availableWords = ${newState.availableWords}")
-        println("drawingEvent = ${newState.drawingEvent}")
-        println("player = ${newState.player}")
-        println("round = ${newState.round}")
-        println("chatMessages = ${newState.chatMessages}")
-        println("owner = ${newState.owner}")
-        println("currentRoom = ${newState.currentRoom}")
-        println("lobbyRooms = ${newState.lobbyRooms}")
-        println("isArtist = ${newState.isArtist}")
-        println("serverMessage = ${newState.notification?.message}")
+//        println("artist = ${newState.artist}")
+//        println("availableWords = ${newState.availableWords}")
+//        println("drawingEvent = ${newState.drawingEvent}")
+//        println("player = ${newState.player}")
+//        println("round = ${newState.round}")
+//        println("chatMessages = ${newState.chatMessages}")
+//        println("owner = ${newState.owner}")
+//        println("currentRoom = ${newState.currentRoom}")
+//        println("lobbyRooms = ${newState.lobbyRooms}")
+//        println("isArtist = ${newState.isArtist}")
+//        println("serverMessage = ${newState.notification?.message}")
+//        println("settings = ${newState.settings}")
+        println("gameState = ${newState.currentRoom?.gameState}")
         _state.value = newState
     }
 
@@ -39,7 +41,8 @@ class StateManager {
         isArtist: Boolean,
         owner: PlayerData,
         artist: PlayerData,
-        round: Int
+        round: Int,
+        settings: GameRoomSettings
     ) {
         updateState(
             _state.value.copy(
@@ -49,7 +52,8 @@ class StateManager {
                 isArtist = isArtist,
                 owner = owner,
                 artist = artist,
-                round = round
+                round = round,
+                settings = settings
             )
         )
     }

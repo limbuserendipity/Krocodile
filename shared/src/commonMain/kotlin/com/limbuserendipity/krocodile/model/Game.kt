@@ -28,17 +28,48 @@ sealed class GameState {
 
     @Serializable
     @SerialName("starting")
-    object Starting : GameState()
+    data class Starting(
+        val time: Int
+    ) : GameState()
 
     @Serializable
     @SerialName("run")
-    object Run : GameState()
+    data class Run(
+        val time: Int
+    ) : GameState()
 
     @Serializable
-    @SerialName("end")
+    @Polymorphic
+    @SerialName("end_type")
     data class End(
+        val endVariant: EndVariant
+    ) : GameState()
+}
+
+@Serializable
+@Polymorphic
+@SerialName("end_variant")
+sealed class EndVariant {
+
+    @Serializable
+    @SerialName("guessed_word")
+    data class GuessedWord(
         val winnerName: String,
         val guessedWord: String,
-    ) : GameState()
+        val time: Int
+    ) : EndVariant()
+
+    @Serializable
+    @SerialName("failed_word")
+    data class FailedWord(
+        val guessedWord: String,
+        val time: Int
+    ) : EndVariant()
+
+    @Serializable
+    @SerialName("game_end")
+    data class GameEnd(
+        val winnerName: String
+    ) : EndVariant()
 
 }

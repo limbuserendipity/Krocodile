@@ -8,6 +8,7 @@ import com.limbuserendipity.krocodile.client.state.ConnectionStatus
 import com.limbuserendipity.krocodile.client.state.StateManager
 import com.limbuserendipity.krocodile.model.ChatMessageData
 import com.limbuserendipity.krocodile.model.DrawingEvent
+import com.limbuserendipity.krocodile.model.GameRoomSettings
 import com.limbuserendipity.krocodile.model.NotificationMessage
 import io.ktor.client.*
 import kotlinx.coroutines.CoroutineScope
@@ -51,8 +52,8 @@ class GameClient(
         return messageService.sendNewPlayerMessage(username)
     }
 
-    suspend fun createRoom(title: String, maxPlayers: Int): Result<Unit> {
-        return messageService.sendCreateRoomMessage(title, maxPlayers)
+    suspend fun createRoom(title: String, settings: GameRoomSettings): Result<Unit> {
+        return messageService.sendCreateRoomMessage(title, settings)
     }
 
     suspend fun joinRoom(roomId: Long): Result<Unit> {
@@ -84,8 +85,8 @@ class GameClient(
         return messageService.sendKickPlayer(playerId)
     }
 
-    suspend fun changeSettingsRoom(title: String, maxPlayers: Int): Result<Unit> {
-        return messageService.sendChangeSettingsRoom(title, maxPlayers)
+    suspend fun changeSettingsRoom(title: String, settings: GameRoomSettings): Result<Unit> {
+        return messageService.sendChangeSettingsRoom(title, settings)
     }
 
     suspend fun fireMessage(messageData: ChatMessageData): Result<Unit> {

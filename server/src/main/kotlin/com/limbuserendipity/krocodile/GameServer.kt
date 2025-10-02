@@ -8,11 +8,11 @@ object GameServer {
         classDiscriminator = "type"
     }
 
-    private val playerService = PlayerService()
-    private val roomService = RoomService()
-    private val gameService = GameService()
     private val connectionManager = ConnectionManager()
     private val messageSender = MessageSender(connectionManager, json)
+    private val playerService = PlayerService()
+    private val roomService = RoomService()
+    private val gameService = GameService(messageSender)
     private val webSocketHandler = WebSocketHandler(
         playerService,
         roomService,

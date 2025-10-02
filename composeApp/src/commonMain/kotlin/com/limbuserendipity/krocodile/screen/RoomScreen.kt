@@ -42,7 +42,7 @@ class RoomScreen(val viewModel: RoomViewModel) : BaseScreen(viewModel), KoinComp
             mutableStateOf(false)
         }
 
-        var showVictoryDialog by remember {
+        var showEndDialog by remember {
             mutableStateOf(false)
         }
 
@@ -122,6 +122,7 @@ class RoomScreen(val viewModel: RoomViewModel) : BaseScreen(viewModel), KoinComp
                     showWordsDialog = false
                     viewModel.sendWordMessage(word)
                 },
+                time = (state.value.roomData.gameState as GameState.Starting).time.toFloat(),
                 onDismiss = {
 
                 },
@@ -149,38 +150,57 @@ class RoomScreen(val viewModel: RoomViewModel) : BaseScreen(viewModel), KoinComp
             RoomSettingsDialog(
                 isCreate = false,
                 roomName = state.value.roomData.title,
+                roomSettings = state.value.roomSettings,
                 onDismissRequest = {
                     showSettingDialog = false
                 },
-                onSettingsRoom = { title, maxPlayers ->
-                    viewModel.sendChangeSettingsRoom(title, maxPlayers)
+                onSettingsRoom = { title, maxPlayers, maxRounds, maxTime, difficulty ->
+                    viewModel.sendChangeSettingsRoom(
+                        title,
+                        settings = GameRoomSettings(
+                            maxPlayers = maxPlayers,
+                            maxRounds = maxRounds,
+                            maxTime = maxTime,
+                            difficulty = difficulty
+                        ),
+                    )
                     showSettingDialog = false
                 }
             )
         }
 
-        if (showVictoryDialog && state.value.roomData.gameState is GameState.End) {
-            VictoryDialog(
+        if (showEndDialog && state.value.roomData.gameState is GameState.End) {
+
+            EndDialog(
+                endState = state.value.roomData.gameState as GameState.End,
                 paths = viewModel.completedPaths.value,
-                winnerName = (state.value.roomData.gameState as GameState.End).winnerName,
-                guessedWord = (state.value.roomData.gameState as GameState.End).guessedWord,
                 onContinue = {
-                    showVictoryDialog = false
+                    showEndDialog = false
                 },
                 onDismissRequest = {
-                    showVictoryDialog = false
-                }
+                    showEndDialog = false
+                },
+                players = state.value.players,
+                onNewGame = {
+                    showEndDialog = false
+                },
+                onLeave = {
+                    showEndDialog = false
+                },
+                closeAnswers = state.value.chat.sortedBy { it.fire }.take(3)
             )
+
         }
 
         LaunchedEffect(viewModel.uiEvent) {
             viewModel.uiEvent.collect { event ->
                 when (event) {
-                    is RoomUiEvent.ShowVictoryDialog -> {
-                        showVictoryDialog = event.showDialog
+                    is RoomUiEvent.ShowEndDialog -> {
+                        showEndDialog = event.showDialog
                     }
 
                     is RoomUiEvent.ShowWordsDialog -> {
+
                         showWordsDialog = event.showDialog
                     }
 
@@ -203,13 +223,14 @@ class RoomScreen(val viewModel: RoomViewModel) : BaseScreen(viewModel), KoinComp
 data class RoomUiState(
     val player: Player,
     val roomData: RoomData,
+    val roomSettings: GameRoomSettings,
     val players: List<PlayerData>,
     var owner: PlayerData,
     var artist: PlayerData,
     var isArtist: Boolean,
     val chat: List<ChatMessageData>,
     val availableWords: List<String>,
-    val round: Int = 0
+    val round: Int
 )
 
 
@@ -222,6 +243,7 @@ fun roomUiStatePlaceHolder() = RoomUiState(
         maxCount = 0,
         gameState = GameState.Wait
     ),
+    roomSettings = gameRoomSettingsPlaceholder(),
     players = emptyList(),
     owner = playerDataPlaceHolder(),
     artist = playerDataPlaceHolder(),
@@ -252,7 +274,7 @@ sealed class RoomUiEvent : UiEvent() {
         val showDialog: Boolean
     ) : RoomUiEvent()
 
-    data class ShowVictoryDialog(
+    data class ShowEndDialog(
         val showDialog: Boolean
     ) : RoomUiEvent()
 

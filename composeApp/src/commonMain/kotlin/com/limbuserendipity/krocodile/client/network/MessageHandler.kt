@@ -44,7 +44,8 @@ class MessageHandler(
                             owner = data.owner,
                             artist = data.artist,
                             round = data.round,
-                            isArtist = data.artist.id == stateManager.state.value.player?.id
+                            isArtist = data.artist.id == stateManager.state.value.player?.id,
+                            settings = data.settings
                         )
                     }
 

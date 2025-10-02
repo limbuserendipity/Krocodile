@@ -85,17 +85,41 @@ fun GameRoomHeader(
                                 )
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
+
+                            val statusText = when (gameStatus) {
+                                is GameState.Run -> "Идет $round раунд"
+                                is GameState.Wait -> "Ожидание игроков"
+                                is GameState.Starting -> "$artistName выбирает слово"
+                                is GameState.End -> "Конец"
+                                else -> "Ошибка"
+                            }
+
                             Text(
-                                text = when (gameStatus) {
-                                    GameState.Run -> "Идет $round раунд"
-                                    GameState.Wait -> "Ожидание игроков"
-                                    GameState.Starting -> "$artistName выбирает слово"
-                                    is GameState.End -> "Победитель найден"
-                                },
+                                text = statusText,
                                 color = if (gameStatus == GameState.Run) Color.White else MaterialTheme.colorScheme.onSurface,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Medium
                             )
+                        }
+
+                        if (gameStatus is GameState.Run) {
+                            val remainingTime = gameStatus.time
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .background(
+                                        if (remainingTime <= 10) Color(0xFFFF5252) else Color(0xFFFF9800),
+                                        RoundedCornerShape(12.dp)
+                                    )
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = formatTime(remainingTime),
+                                    color = Color.White,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
                         }
                     }
                 }
@@ -132,5 +156,16 @@ fun GameRoomHeader(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun formatTime(seconds: Int): String {
+    return if (seconds >= 60) {
+        val minutes = seconds / 60
+        val secs = seconds % 60
+        "$minutes:${secs.toString().padStart(2, '0')}"
+    } else {
+        "$seconds"
     }
 }

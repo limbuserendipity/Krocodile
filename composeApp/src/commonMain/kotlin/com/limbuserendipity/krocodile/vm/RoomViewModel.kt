@@ -42,6 +42,7 @@ class RoomViewModel(
                     RoomUiState(
                         player = state.player!!,
                         roomData = state.currentRoom!!,
+                        roomSettings = state.settings!!,
                         players = state.roomPlayers,
                         owner = state.owner!!,
                         artist = state.artist!!,
@@ -56,7 +57,7 @@ class RoomViewModel(
                     _uiEvent.emit(RoomUiEvent.NavigateToLobby)
                 }
 
-                if (state.currentRoom.gameState == GameState.Starting && state.player.isArtist) {
+                if (state.currentRoom.gameState is GameState.Starting && state.player.isArtist) {
                     _uiEvent.emit(RoomUiEvent.ShowWordsDialog(true))
                 } else {
                     _uiEvent.emit(RoomUiEvent.ShowWordsDialog(false))
@@ -64,10 +65,13 @@ class RoomViewModel(
 
                 if (state.currentRoom.gameState is GameState.End) {
                     _uiEvent.emit(
-                        RoomUiEvent.ShowVictoryDialog(
+                        RoomUiEvent.ShowEndDialog(
                             showDialog = true
                         )
                     )
+                    if ((state.currentRoom.gameState as GameState.End).endVariant is EndVariant.GameEnd) {
+                        completedPaths.value = listOf()
+                    }
                 }
 
                 if (state.currentRoom.gameState is GameState.Starting) {
@@ -143,7 +147,6 @@ class RoomViewModel(
             }
 
             is ToolType.Undo -> {
-                println("Undo")
                 completedPaths.value = completedPaths.value.dropLast(1)
             }
 
@@ -297,9 +300,9 @@ class RoomViewModel(
         }
     }
 
-    fun sendChangeSettingsRoom(title: String, maxPlayers: Int) {
+    fun sendChangeSettingsRoom(title: String, settings: GameRoomSettings) {
         viewModelScope.launch {
-            client.changeSettingsRoom(title, maxPlayers)
+            client.changeSettingsRoom(title, settings)
         }
     }
 

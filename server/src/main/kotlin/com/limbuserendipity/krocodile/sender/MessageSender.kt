@@ -15,7 +15,7 @@ class MessageSender(
                         title = room.title,
                         roomId = room.id,
                         playerCount = room.players.count(),
-                        maxCount = room.maxPlayers,
+                        maxCount = room.settings.maxPlayers,
                         gameState = room.state
                     ),
                     players = room.players.values.map { player ->
@@ -39,7 +39,8 @@ class MessageSender(
                         isArtist = room.artist.isArtist
                     ),
                     chat = room.chat,
-                    round = room.round
+                    round = room.round,
+                    settings = room.settings,
                 )
             )
         )
@@ -75,7 +76,7 @@ class MessageSender(
                         title = room.title,
                         roomId = room.id,
                         playerCount = room.players.count(),
-                        maxCount = room.maxPlayers,
+                        maxCount = room.settings.maxPlayers,
                         gameState = room.state
                     )
                 }

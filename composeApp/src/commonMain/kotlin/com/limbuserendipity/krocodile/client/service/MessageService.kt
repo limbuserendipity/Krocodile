@@ -5,6 +5,7 @@ import com.limbuserendipity.krocodile.client.state.StateManager
 import com.limbuserendipity.krocodile.model.ChatMessageData
 import com.limbuserendipity.krocodile.model.DrawingEvent
 import com.limbuserendipity.krocodile.model.GameMessage
+import com.limbuserendipity.krocodile.model.GameRoomSettings
 import com.limbuserendipity.krocodile.model.PlayerEvent
 
 class MessageService(
@@ -19,13 +20,13 @@ class MessageService(
         return webSocketClient.sendMessage(message)
     }
 
-    suspend fun sendCreateRoomMessage(title: String, maxPlayers: Int): Result<Unit> {
+    suspend fun sendCreateRoomMessage(title: String, settings: GameRoomSettings): Result<Unit> {
         val player = stateManager.state.value.player ?: return Result.failure(IllegalStateException("No player"))
         val message = GameMessage.PlayerMessage(
             playerEvent = PlayerEvent.NewRoom(
                 player = player,
                 title = title,
-                maxPlayers = maxPlayers
+                settings = settings
             )
         )
         return webSocketClient.sendMessage(message)
@@ -107,13 +108,13 @@ class MessageService(
         return webSocketClient.sendMessage(message)
     }
 
-    suspend fun sendChangeSettingsRoom(title: String, maxPlayers: Int): Result<Unit> {
+    suspend fun sendChangeSettingsRoom(title: String, settings: GameRoomSettings): Result<Unit> {
         val player = stateManager.state.value.player ?: return Result.failure(IllegalStateException("No player"))
         val message = GameMessage.PlayerMessage(
             playerEvent = PlayerEvent.ChangeSettingsRoom(
                 player = player,
                 title = title,
-                maxPlayers = maxPlayers
+                settings = settings
             )
         )
         return webSocketClient.sendMessage(message)

@@ -16,7 +16,9 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.limbuserendipity.krocodile.component.LobbyHeader
 import com.limbuserendipity.krocodile.component.RoomCard
 import com.limbuserendipity.krocodile.component.RoomSettingsDialog
+import com.limbuserendipity.krocodile.model.GameRoomSettings
 import com.limbuserendipity.krocodile.model.RoomData
+import com.limbuserendipity.krocodile.model.gameRoomSettingsPlaceholder
 import com.limbuserendipity.krocodile.vm.LobbyViewModel
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -85,13 +87,19 @@ class LobbyScreen(val viewModel: LobbyViewModel) : BaseScreen(viewModel), KoinCo
         if (showDialog) {
             RoomSettingsDialog(
                 isCreate = true,
+                roomSettings = gameRoomSettingsPlaceholder(),
                 onDismissRequest = {
                     showDialog = false
                 },
-                onSettingsRoom = { title, maxPlayers ->
+                onSettingsRoom = { title, maxPlayers, maxRounds, maxTime, difficulty ->
                     viewModel.createRoom(
                         title = title,
-                        maxPlayers = maxPlayers
+                        settings = GameRoomSettings(
+                            maxPlayers = maxPlayers,
+                            maxRounds = maxRounds,
+                            maxTime = maxTime,
+                            difficulty = difficulty
+                        )
                     )
                     showDialog = false
                 })

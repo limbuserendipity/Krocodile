@@ -10,20 +10,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin.Companion.Round
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.Res
-import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.baseline_arrow_back_ios_24
 import com.limbuserendipity.krocodile.composeApp.commonMain.composeResources.pen
 import com.limbuserendipity.krocodile.theme.CanvasSurface
 import com.limbuserendipity.krocodile.vm.PathInfo
@@ -32,7 +33,7 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun DrawingCanvas(
     paddingValues: PaddingValues,
-    isArtist : Boolean,
+    isArtist: Boolean,
     currentPath: PathInfo,
     completedPaths: List<PathInfo>,
     usersPath: List<PathInfo>,
@@ -41,6 +42,7 @@ fun DrawingCanvas(
     onDragEnd: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var canvasSize by remember { mutableStateOf(Size.Zero) }
 
     Surface(
         shape = RoundedCornerShape(16.dp),
@@ -58,68 +60,74 @@ fun DrawingCanvas(
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                if (currentPath.path.isEmpty && completedPaths.isEmpty() && usersPath.isEmpty()) {
+                if (currentPath.points.isEmpty() && completedPaths.isEmpty() && usersPath.isEmpty()) {
                     Icon(
                         painter = painterResource(Res.drawable.pen),
                         contentDescription = ""
                     )
                     Text(
                         text = "Здесь будет рисунок",
-                        color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 14.sp
                     )
                 }
             }
 
-            val drawingModifier = if(isArtist) Modifier
+            val drawingModifier = if (isArtist) Modifier
                 .pointerInput(Unit) {
                     detectDragGestures(
-                        onDragStart = onDragStart,
-                        onDrag = onDrag,
+                        onDragStart = { offset ->
+                            val normalized = offset / canvasSize
+                            onDragStart(normalized)
+                        },
+                        onDrag = { change, offset ->
+                            val normalized = Offset(change.position.x, change.position.y) / canvasSize
+                            onDrag(change, normalized)
+                        },
                         onDragEnd = onDragEnd
                     )
                 }
             else Modifier
 
             Canvas(
-                modifier = drawingModifier
-                    .fillMaxSize()
-                    .pointerInput(Unit) {
-                        detectDragGestures(
-                            onDragStart = onDragStart,
-                            onDrag = onDrag,
-                            onDragEnd = onDragEnd
-                        )
+                modifier = drawingModifier.fillMaxSize()
+                    .onSizeChanged {
+                        canvasSize = Size(it.width.toFloat(), it.height.toFloat())
                     }
             ) {
+                val actualCanvasSize = size
 
                 completedPaths.forEach { pathInfo ->
+                    val actualSize = pathInfo.getActualSize(actualCanvasSize)
                     drawPath(
-                        path = pathInfo.path,
+                        path = pathInfo.toScaledPath(actualCanvasSize),
                         color = pathInfo.color,
                         style = Stroke(
-                            width = pathInfo.size.toFloat(),
+                            width = actualSize,
                             cap = StrokeCap.Round,
                             join = Round
                         )
                     )
                 }
 
+                val currentActualSize = currentPath.getActualSize(actualCanvasSize)
                 drawPath(
-                    path = currentPath.path,
+                    path = currentPath.toScaledPath(actualCanvasSize),
                     color = currentPath.color,
                     style = Stroke(
-                        width = currentPath.size.toFloat(),
+                        width = currentActualSize,
                         cap = StrokeCap.Round,
                         join = Round
                     )
                 )
 
                 usersPath.forEach { pathInfo ->
+                    val actualSize = pathInfo.getActualSize(actualCanvasSize)
                     drawPath(
-                        path = pathInfo.path,
+                        path = pathInfo.toScaledPath(actualCanvasSize),
                         color = pathInfo.color,
                         style = Stroke(
-                            width = pathInfo.size.toFloat(),
+                            width = actualSize,
                             cap = StrokeCap.Round,
                             join = Round
                         )
@@ -128,4 +136,8 @@ fun DrawingCanvas(
             }
         }
     }
+}
+
+operator fun Offset.div(size: Size): Offset {
+    return Offset(this.x / size.width, this.y / size.height)
 }

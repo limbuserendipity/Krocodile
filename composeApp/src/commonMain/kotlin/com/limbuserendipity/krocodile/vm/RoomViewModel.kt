@@ -1,10 +1,9 @@
 package com.limbuserendipity.krocodile.vm
 
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.copy
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.lifecycle.viewModelScope
 import com.limbuserendipity.krocodile.client.GameClient
@@ -97,14 +96,11 @@ class RoomViewModel(
     fun handleDrawPath(drawPath: DrawingEvent.DrawPath) {
         when (drawPath.pathData.drawState) {
             DrawState.DrawStart -> {
-                val newPath = Path().apply {
-                    moveTo(drawPath.pathData.x, drawPath.pathData.y)
-                }
                 userPaths.value = userPaths.value.toMutableMap().apply {
                     this[drawPath.pathData.drawerId] = PathInfo(
-                        path = newPath,
+                        points = listOf(Offset(drawPath.pathData.relativeX, drawPath.pathData.relativeY)),
                         color = Color(drawPath.pathData.color),
-                        size = drawPath.pathData.size
+                        normalizedSize = drawPath.pathData.normalizedSize
                     )
                 }
             }
@@ -112,15 +108,10 @@ class RoomViewModel(
             DrawState.Drawing -> {
                 val existingPath = userPaths.value[drawPath.pathData.drawerId]
                 if (existingPath != null) {
-                    val updatedPath = existingPath.path.copy().apply {
-                        lineTo(drawPath.pathData.x, drawPath.pathData.y)
-                    }
+                    val updatedPoints =
+                        existingPath.points + Offset(drawPath.pathData.relativeX, drawPath.pathData.relativeY)
                     userPaths.value = userPaths.value.toMutableMap().apply {
-                        this[drawPath.pathData.drawerId] = PathInfo(
-                            path = updatedPath,
-                            color = Color(drawPath.pathData.color),
-                            size = drawPath.pathData.size
-                        )
+                        this[drawPath.pathData.drawerId] = existingPath.copy(points = updatedPoints)
                     }
                 }
             }
@@ -138,6 +129,7 @@ class RoomViewModel(
             }
         }
     }
+
 
     fun handleToolSelect(toolSelect: DrawingEvent.ToolSelect) {
 
@@ -176,21 +168,19 @@ class RoomViewModel(
         }
     }
 
-    fun onDragStart(offset: Offset) {
+    fun onDragStart(normalizedOffset: Offset) {
         currentPath.value = currentPath.value.copy(
-            path = currentPath.value.path.copy().apply {
-                moveTo(offset.x, offset.y)
-            }
+            points = listOf(normalizedOffset)
         )
 
         viewModelScope.launch {
             client.sendDrawing(
                 DrawingEvent.DrawPath(
                     pathData = PathData(
-                        x = offset.x,
-                        y = offset.y,
+                        relativeX = normalizedOffset.x,
+                        relativeY = normalizedOffset.y,
                         color = currentPath.value.color.value,
-                        size = currentPath.value.size,
+                        normalizedSize = currentPath.value.normalizedSize,
                         drawerId = uiState.value.player.id,
                         drawState = DrawState.DrawStart
                     )
@@ -199,20 +189,19 @@ class RoomViewModel(
         }
     }
 
-    fun onDrag(change: PointerInputChange, offset: Offset) {
+    fun onDrag(change: PointerInputChange, normalizedOffset: Offset) {
         currentPath.value = currentPath.value.copy(
-            path = currentPath.value.path.copy().apply {
-                lineTo(change.position.x, change.position.y)
-            }
+            points = currentPath.value.points + normalizedOffset
         )
+
         viewModelScope.launch {
             client.sendDrawing(
                 DrawingEvent.DrawPath(
                     pathData = PathData(
-                        x = change.position.x,
-                        y = change.position.y,
+                        relativeX = normalizedOffset.x,
+                        relativeY = normalizedOffset.y,
                         color = currentPath.value.color.value,
-                        size = currentPath.value.size,
+                        normalizedSize = currentPath.value.normalizedSize,
                         drawerId = uiState.value.player.id,
                         drawState = DrawState.Drawing
                     )
@@ -222,22 +211,21 @@ class RoomViewModel(
     }
 
     fun onDragEnd() {
-        completedPaths.value = completedPaths.value.toMutableStateList().apply {
-            add(
-                currentPath.value.copy()
-            )
+        completedPaths.value = completedPaths.value.toMutableList().apply {
+            add(currentPath.value)
         }
         currentPath.value = currentPath.value.copy(
-            path = Path()
+            points = emptyList()
         )
+
         viewModelScope.launch {
             client.sendDrawing(
                 DrawingEvent.DrawPath(
                     pathData = PathData(
-                        x = 0f,
-                        y = 0f,
+                        relativeX = 0f,
+                        relativeY = 0f,
                         color = currentPath.value.color.value,
-                        size = currentPath.value.size,
+                        normalizedSize = currentPath.value.normalizedSize,
                         drawerId = uiState.value.player.id,
                         drawState = DrawState.DrawEnd
                     )
@@ -282,9 +270,10 @@ class RoomViewModel(
         }
     }
 
-    fun onBrushSizeChanged(size: Int) {
+    fun onBrushSizeChanged(sizeInPixels: Int) {
+        val normalizedSize = sizeInPixels.toFloat() / 512f
         currentPath.value = currentPath.value.copy(
-            size = size
+            normalizedSize = normalizedSize
         )
     }
 
@@ -315,13 +304,30 @@ class RoomViewModel(
 }
 
 data class PathInfo(
-    val path: Path,
+    val points: List<Offset>,
     val color: Color,
-    val size: Int
-)
+    val normalizedSize: Float
+) {
+    fun toScaledPath(canvasSize: Size): Path {
+        val path = Path()
+        if (points.isNotEmpty()) {
+            val first = points[0]
+            path.moveTo(first.x * canvasSize.width, first.y * canvasSize.height)
+            for (i in 1 until points.size) {
+                val point = points[i]
+                path.lineTo(point.x * canvasSize.width, point.y * canvasSize.height)
+            }
+        }
+        return path
+    }
+
+    fun getActualSize(canvasSize: Size): Float {
+        return normalizedSize * minOf(canvasSize.width, canvasSize.height)
+    }
+}
 
 fun pathInfoPlaceHolder() = PathInfo(
-    path = Path(),
+    points = emptyList(),
     color = Color.Black,
-    size = 4
+    normalizedSize = 8f / 512f
 )

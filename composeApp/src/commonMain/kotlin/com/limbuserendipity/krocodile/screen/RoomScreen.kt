@@ -208,7 +208,6 @@ class RoomScreen(val viewModel: RoomViewModel) : BaseScreen(viewModel), KoinComp
 
             }
         }
-
     }
 }
 

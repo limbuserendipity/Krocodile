@@ -6,10 +6,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("path_data")
 data class PathData(
-    val x: Float,
-    val y: Float,
+    val relativeX: Float,
+    val relativeY: Float,
     val color: ULong,
-    val size: Int,
+    val normalizedSize: Float,
     val drawerId: String,
     val drawState: DrawState
 )

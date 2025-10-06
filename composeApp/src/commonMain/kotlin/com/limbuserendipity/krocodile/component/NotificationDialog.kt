@@ -109,7 +109,6 @@ fun NotificationDialog(
     }
 }
 
-// Enum для типов сообщений
 enum class MessageType {
     INFO, WARNING, ERROR, SUCCESS
 }

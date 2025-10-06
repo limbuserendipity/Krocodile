@@ -41,7 +41,7 @@ fun ToolbarInput(
         Color(0xFFFF9800),
         Color(0xFF9C27B0)
     )
-    val brushSizes = listOf(4, 8, 16, 24, 32)
+    val brushSizes = listOf(8, 16, 24, 32, 64)
     var expanded by remember { mutableStateOf(false) }
 
     var undoCount by remember {
@@ -58,7 +58,7 @@ fun ToolbarInput(
                 .padding(24.dp)
                 .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.medium)
                 .padding(12.dp)
-        ){
+        ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -144,10 +144,12 @@ fun ToolbarInput(
             4.dp.Space()
             ToolButton(
                 painter = painterResource(Res.drawable.l_arrow_up_left),
-                onClick = { onToolSelected(ToolType.Undo().apply {
-                    undoCount++
-                    count = undoCount
-                }) },
+                onClick = {
+                    onToolSelected(ToolType.Undo().apply {
+                        undoCount++
+                        count = undoCount
+                    })
+                },
                 tooltip = "Назад"
             )
             4.dp.Space()

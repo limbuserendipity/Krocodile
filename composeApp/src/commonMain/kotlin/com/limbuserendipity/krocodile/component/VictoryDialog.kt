@@ -6,14 +6,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin.Companion.Round
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.scale
-import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -191,37 +192,28 @@ fun ScaledCanvasPreview(
     paths: List<PathInfo>,
     modifier: Modifier = Modifier
 ) {
+    var canvasSize by remember { mutableStateOf(Size.Zero) }
+
     Canvas(
-        modifier = modifier.size(128.dp)
+        modifier = modifier
+            .size(128.dp)
+            .onSizeChanged {
+                canvasSize = Size(it.width.toFloat(), it.height.toFloat())
+            }
     ) {
-        if (paths.isNotEmpty()) {
-            val combinedPath = Path()
-            paths.forEach { pathInfo ->
-                combinedPath.addPath(pathInfo.path)
-            }
+        val actualCanvasSize = size
 
-            val originalBounds = combinedPath.getBounds()
-
-            val scale = minOf(
-                128f / originalBounds.width,
-                128f / originalBounds.height
-            ) * 0.9f
-
-            val offsetX = (128f - originalBounds.width * scale) / 2f - originalBounds.left * scale
-            val offsetY = (128f - originalBounds.height * scale) / 2f - originalBounds.top * scale
-
-            withTransform({
-                translate(offsetX, offsetY)
-                scale(scale)
-            }) {
-                paths.forEach { pathInfo ->
-                    drawPath(
-                        path = pathInfo.path,
-                        color = pathInfo.color,
-                        style = Stroke(width = pathInfo.size.toFloat())
-                    )
-                }
-            }
+        paths.forEach { pathInfo ->
+            val actualSize = pathInfo.getActualSize(actualCanvasSize)
+            drawPath(
+                path = pathInfo.toScaledPath(actualCanvasSize),
+                color = pathInfo.color,
+                style = Stroke(
+                    width = actualSize,
+                    cap = StrokeCap.Round,
+                    join = Round
+                )
+            )
         }
     }
 }

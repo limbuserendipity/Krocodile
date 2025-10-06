@@ -91,7 +91,6 @@ fun GameRoomHeader(
                                 is GameState.Wait -> "Ожидание игроков"
                                 is GameState.Starting -> "$artistName выбирает слово"
                                 is GameState.End -> "Конец"
-                                else -> "Ошибка"
                             }
 
                             Text(

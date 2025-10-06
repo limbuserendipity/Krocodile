@@ -174,19 +174,12 @@ class RoomScreen(val viewModel: RoomViewModel) : BaseScreen(viewModel), KoinComp
             EndDialog(
                 endState = state.value.roomData.gameState as GameState.End,
                 paths = viewModel.completedPaths.value,
-                onContinue = {
-                    showEndDialog = false
-                },
+
                 onDismissRequest = {
                     showEndDialog = false
                 },
                 players = state.value.players,
-                onNewGame = {
-                    showEndDialog = false
-                },
-                onLeave = {
-                    showEndDialog = false
-                },
+
                 closeAnswers = state.value.chat.sortedBy { it.fire }.take(3)
             )
 

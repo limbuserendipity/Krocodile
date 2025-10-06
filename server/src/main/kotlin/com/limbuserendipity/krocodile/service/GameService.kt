@@ -143,7 +143,7 @@ class GameService(
             roundJobs[room.id]?.cancel()
             roundJobs[room.id] = CoroutineScope(Dispatchers.Default).launch {
                 var timer = 10
-                while (timer >= 10) {
+                while (timer >= 0 ) {
                     room.state = GameState.End(
                         endVariant =
                             EndVariant.GuessedWord(

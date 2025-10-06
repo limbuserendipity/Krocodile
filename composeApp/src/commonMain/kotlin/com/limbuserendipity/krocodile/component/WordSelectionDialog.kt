@@ -1,6 +1,5 @@
 package com.limbuserendipity.krocodile.component
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,10 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,7 +19,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import com.limbuserendipity.krocodile.util.Space
 
 @Composable
@@ -34,66 +29,25 @@ fun WordSelectionDialog(
     onDismiss: () -> Unit
 ) {
 
-    val timer = animateFloatAsState(time / 10)
+    KrocodileDialog(
+        time = time,
+        onDismissRequest = onDismiss,
+        title = "\uD83E\uDD14 Выберите слово для рисования",
+        content = {
 
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = Color.White,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
             Column(
-                modifier = Modifier
-                    .padding(24.dp)
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                LinearProgressIndicator(
-                    progress = { timer.value },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(6.dp),
-                    color = Color(0xFFFF9800),
-                    trackColor = Color(0xFFE0E0E0)
-                )
 
                 4.dp.Space()
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFF3DAE8B))
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "\uD83E\uDD14",
-                            fontSize = 34.sp
-                        )
-                    }
+                Text(
+                    text = "У вас 60 секунд на рисунок",
+                    fontSize = 14.sp,
+                    color = Color(0xFF454545),
+                )
 
-                    Text(
-                        text = "Выберите слово для рисования",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1A1A1A),
-                        modifier = Modifier
-                            .padding(top = 16.dp, bottom = 8.dp)
-                    )
-
-                    Text(
-                        text = "У вас 60 секунд на рисунок",
-                        fontSize = 14.sp,
-                        color = Color(0xFF454545)
-                    )
-                }
+                4.dp.Space()
 
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
@@ -101,7 +55,6 @@ fun WordSelectionDialog(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f, false)
                 ) {
                     items(words) { word ->
                         WordButton(
@@ -120,11 +73,11 @@ fun WordSelectionDialog(
                     color = Color(0xFF454545),
                     modifier = Modifier
                         .padding(top = 24.dp)
-                        .align(Alignment.CenterHorizontally)
                 )
             }
+
         }
-    }
+    )
 }
 
 @Composable

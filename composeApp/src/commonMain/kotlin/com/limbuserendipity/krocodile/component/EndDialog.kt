@@ -11,42 +11,39 @@ import com.limbuserendipity.krocodile.vm.PathInfo
 fun EndDialog(
     endState: GameState.End,
     paths: List<PathInfo>,
-    onContinue: () -> Unit,
     onDismissRequest: () -> Unit,
     players: List<PlayerData>,
-    onNewGame: () -> Unit,
-    onLeave: () -> Unit,
     closeAnswers: List<ChatMessageData>
 ) {
     when (val variant = endState.endVariant) {
         is EndVariant.GuessedWord -> {
-            VictoryDialog(
+
+            WinnerGuessedDialog(
+                guessedWord = variant.guessedWord,
+                winnerName = variant.winnerName,
                 time = variant.time.toFloat(),
                 paths = paths,
-                winnerName = variant.winnerName,
-                guessedWord = variant.guessedWord,
-                onContinue = onContinue,
                 onDismissRequest = onDismissRequest
             )
+
         }
 
         is EndVariant.FailedWord -> {
-            TimeUpFailedDialog(
+
+            NoWinnerDialog(
                 time = variant.time.toFloat(),
                 paths = paths,
                 guessedWord = variant.guessedWord,
                 closeAnswers = closeAnswers,
-                onContinue = onContinue,
-                onDismissRequest = onDismissRequest
+                onDismissRequest = onDismissRequest,
             )
+
         }
 
         is EndVariant.GameEnd -> {
             GameEndDialog(
-                winnerName = variant.winnerName,
+                winner = players.first { it.name == variant.winnerName },
                 players = players,
-                onNewGame = onNewGame,
-                onLeave = onLeave,
                 onDismissRequest = onDismissRequest
             )
         }
